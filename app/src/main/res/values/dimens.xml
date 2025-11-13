@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Text sizes -->
+    <dimen name="display_text_size">48sp</dimen>
+    <dimen name="display_subtext_size">24sp</dimen>
+    <dimen name="button_text_size">24sp</dimen>
+    
+    <!-- Margins and padding -->
+    <dimen name="margin_small">4dp</dimen>
+    <dimen name="margin_medium">12dp</dimen>
+    <dimen name="margin_large">20dp</dimen>
+    
+    <!-- Button dimensions -->
+    <dimen name="button_elevation">4dp</dimen>
+    <dimen name="button_corner_radius">12dp</dimen>
+    
+    <!-- Display dimensions -->
+    <dimen name="display_padding">24dp</dimen>
+    <dimen name="display_elevation">8dp</dimen>
+    <dimen name="display_corner_radius">16dp</dimen>
+</resources>

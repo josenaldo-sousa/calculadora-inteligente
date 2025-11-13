@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Calculadora Inteligente</string>
+    <string name="display_zero">0</string>
+    <string name="btn_zero">0</string>
+    <string name="btn_one">1</string>
+    <string name="btn_two">2</string>
+    <string name="btn_three">3</string>
+    <string name="btn_four">4</string>
+    <string name="btn_five">5</string>
+    <string name="btn_six">6</string>
+    <string name="btn_seven">7</string>
+    <string name="btn_eight">8</string>
+    <string name="btn_nine">9</string>
+    <string name="btn_plus">+</string>
+    <string name="btn_minus">−</string>
+    <string name="btn_multiply">×</string>
+    <string name="btn_divide">÷</string>
+    <string name="btn_equals">=</string>
+    <string name="btn_clear">C</string>
+    <string name="btn_delete">⌫</string>
+    <string name="btn_decimal">.</string>
+    <string name="btn_percent">%</string>
+    <string name="btn_voice">🎤</string>
+    <string name="voice_prompt">Diga uma operação matemática</string>
+    <string name="voice_error">Erro ao reconhecer voz</string>
+    <string name="voice_not_available">Reconhecimento de voz não disponível</string>
+    <string name="permission_required">Permissão de microfone necessária</string>
+    <string name="error_division_zero">Não é possível dividir por zero</string>
+    <string name="error_invalid_operation">Operação inválida</string>
+</resources>

@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/mipmap_ic_launcher_round.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/mipmap/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/layout_activity_main.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.jfsantos.calculadorainteligente.app-merged_res-40:/mipmap_ic_launcher.xml.flat",
+        "source": "com.jfsantos.calculadorainteligente.app-main-42:/mipmap/ic_launcher.xml"
+    }
+]
