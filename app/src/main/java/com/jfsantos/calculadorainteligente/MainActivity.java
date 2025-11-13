@@ -276,17 +276,17 @@ public class MainActivity extends AppCompatActivity {
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-BR");
             intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_prompt));
-                // Prefer a single best alternative from the recognizer to avoid
-                // ambiguities caused by multiple alternatives.
-                intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-                // Tweak silence timeouts to improve recognition stability (milliseconds)
-                // These extras may be honored by some recognizers and help avoid
-                // early cut-offs or overly long listens.
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1400L);
-                intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 700L);
-                // Prefer online recognition by default for higher accuracy; if you
-                // want offline set EXTRA_PREFER_OFFLINE to true on devices that support it.
-                // intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false);
+            
+            // Prefer multiple results to improve accuracy
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+            
+            // Tweak silence timeouts to improve recognition stability (milliseconds)
+            // Longer silence tolerance for better number detection
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1800L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
+            
+            // Prefer online recognition for better accuracy with numbers
+            // Comentado: intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false);
 
             Toast.makeText(this, getString(R.string.voice_prompt), Toast.LENGTH_SHORT).show();
             speechRecognizer.startListening(intent);
@@ -300,10 +300,6 @@ public class MainActivity extends AppCompatActivity {
             // Silently ignore unrecognized commands
             return;
         }
-
-        // The following lines that update the UI with voice text will be removed.
-        // if (tvVoiceRaw != null) tvVoiceRaw.setText(voiceText);
-        // if (tvVoiceConverted != null) tvVoiceConverted.setText(VoiceCommandProcessor.toHumanReadable(processed));
 
         if (processed.equals("CLEAR")) {
             calculator.clear();
@@ -322,18 +318,30 @@ public class MainActivity extends AppCompatActivity {
             processed = VoiceCommandProcessor.cleanExpression(processed);
         }
 
+        // Process the expression with better handling of numbers with commas
         String[] parts = processed.split("\\s+");
         for (String p : parts) {
             if (p.isEmpty()) continue;
+            
+            // Match numbers with optional decimal part (using comma as separator)
             if (p.matches("\\d+(,\\d+)?")) {
                 for (char digit : p.toCharArray()) {
-                    if (digit == ',') calculator.appendDecimal();
-                    else calculator.appendDigit(String.valueOf(digit));
+                    if (digit == ',') {
+                        calculator.appendDecimal();
+                    } else {
+                        calculator.appendDigit(String.valueOf(digit));
+                    }
                 }
-            } else if (p.matches("[+−×÷%()]")) {
-                 if (p.equals("(")) calculator.appendParenthesis("(");
-                 else if (p.equals(")")) calculator.appendParenthesis(")");
-                 else calculator.appendOperator(p);
+            } 
+            // Match operators and parentheses
+            else if (p.matches("[+−×÷%()]")) {
+                if (p.equals("(")) {
+                    calculator.appendParenthesis("(");
+                } else if (p.equals(")")) {
+                    calculator.appendParenthesis(")");
+                } else {
+                    calculator.appendOperator(p);
+                }
             }
         }
 
