@@ -118,13 +118,8 @@ public class VoiceCommandProcessor {
         operatorWords.put("percentual", "%");
         operatorWords.put("percent", "%");  // English
         
-        // Decimal separators
-        operatorWords.put("virgula", ",");   // Sem acento
-        operatorWords.put("vírgula", ",");
-        operatorWords.put("ponto", ".");
-        operatorWords.put("decimal", ".");
-        operatorWords.put("dot", ".");       // English
-        operatorWords.put("comma", ",");     // English
+        // NOTE: Decimal separators (virgula, ponto, etc.) are NOT in operatorWords
+        // They are handled specially within parseNumber() method
         
         // Special commands
         operatorWords.put("igual", "=");
