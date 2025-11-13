@@ -253,7 +253,7 @@ public class VoiceCommandProcessor {
             }
 
             // Number parsing (including composed numbers and decimals)
-            if (isNumberWord(wordNormalized) || word.matches("\\d+")) {
+            if (isNumberWord(wordNormalized) || isDecimalMarker(wordNormalized) || word.matches("\\d+")) {
                 ParseResult pr = parseNumber(words, i);
                 if (pr != null) {
                     if (result.length() > 0 && !result.toString().endsWith(" ")) {
@@ -325,8 +325,7 @@ public class VoiceCommandProcessor {
     private static boolean isNumberWord(String w) {
         if (w == null) return false;
         String normalized = normalizeText(w);
-        return numberWords.containsKey(normalized) || normalized.equals("virgula") || normalized.equals("ponto") || 
-               normalized.equals("decimal") || normalized.equals("dot") || normalized.equals("comma");
+        return numberWords.containsKey(normalized);
     }
 
     // ParseResult holds parsed number string and next index
@@ -349,128 +348,112 @@ public class VoiceCommandProcessor {
         BigDecimal current = BigDecimal.ZERO;
         boolean foundAny = false;
 
-        while (idx < words.length) {
-            String w = words[idx].toLowerCase();
-            String wNormalized = normalizeText(w);
-            
-            // Skip connector words
-            if (wNormalized.equals("e") || wNormalized.equals("de")) {
-                idx++;
-                continue;
-            }
-            
-            // If decimal marker found, break
-            if (isDecimalMarker(wNormalized)) {
-                break;
-            }
-            
-            if (!numberWords.containsKey(wNormalized)) {
-                // Not a number word, stop parsing
-                break;
-            }
-            
-            foundAny = true;
-            String numStr = numberWords.get(wNormalized);
-            BigDecimal val = new BigDecimal(numStr);
-            int v = val.intValue();
+        boolean startsWithDecimal = isDecimalMarker(normalizeText(words[idx].toLowerCase()));
 
-            // Composição em português:
-            // - Unidades e dezenas (0-99): acumula em 'current'
-            // - Centenas (100-900): adiciona ao current (não ao total)
-            // - Milhares+ (1000+): multiplica (current + total) e reseta
-            
-            if (v >= 1000) {
-                // mil, milhão, etc
-                // Combina current e total para multiplicar
-                BigDecimal base = total.add(current);
-                if (base.compareTo(BigDecimal.ZERO) == 0) {
-                    base = BigDecimal.ONE;
+        if (!startsWithDecimal) {
+            while (idx < words.length) {
+                String w = words[idx].toLowerCase();
+                String wNormalized = normalizeText(w);
+                
+                if (wNormalized.equals("e") || wNormalized.equals("de")) {
+                    idx++;
+                    continue;
                 }
-                // Multiplica: "cento e vinte e três mil" = (100 + 20 + 3) * 1000
-                total = base.multiply(val);
-                current = BigDecimal.ZERO;
-            } 
-            else if (v >= 100) {
-                // Centenas: "cento", "duzentos", etc - acumula em current, não em total
-                current = current.add(val);
-            } 
-            else {
-                // Unidades e dezenas (0-99): apenas acumula
-                current = current.add(val);
+                
+                if (isDecimalMarker(wNormalized)) {
+                    break; 
+                }
+                
+                if (!numberWords.containsKey(wNormalized)) {
+                    break; 
+                }
+                
+                foundAny = true;
+                String numStr = numberWords.get(wNormalized);
+                BigDecimal val = new BigDecimal(numStr);
+
+                if (val.scale() > 0) {
+                    current = current.add(val);
+                    idx++;
+                    continue;
+                }
+
+                int v = val.intValue();
+
+                if (v >= 1000) {
+                    BigDecimal base = total.add(current);
+                    if (base.compareTo(BigDecimal.ZERO) == 0) {
+                        base = BigDecimal.ONE;
+                    }
+                    total = base.multiply(val);
+                    current = BigDecimal.ZERO;
+                } else {
+                    current = current.add(val);
+                }
+                
+                idx++;
             }
-            
-            idx++;
+            total = total.add(current);
         }
 
-        // Adiciona qualquer valor restante em 'current'
-        total = total.add(current);
-
-        // Verificar se encontrou algo
-        if (!foundAny) {
+        if (!foundAny && !startsWithDecimal) {
             return null;
         }
 
-        // If decimal part exists
         if (idx < words.length && isDecimalMarker(normalizeText(words[idx].toLowerCase()))) {
-            idx++; // skip marker
+            idx++; 
+            foundAny = true;
             
-            // Parse fractional part
-            StringBuilder fracDigits = new StringBuilder();
-            BigDecimal fracTotal = BigDecimal.ZERO;
+            StringBuilder fracBuilder = new StringBuilder();
             
             while (idx < words.length) {
                 String w = words[idx].toLowerCase();
                 String wNormalized = normalizeText(w);
                 
-                // Skip connectors
                 if (wNormalized.equals("e") || wNormalized.equals("de")) { 
                     idx++; 
                     continue; 
                 }
                 
-                // Check for another decimal marker (shouldn't happen but safety)
-                if (isDecimalMarker(wNormalized)) {
+                if (isDecimalMarker(wNormalized) || operatorWords.containsKey(wNormalized)) {
                     break;
                 }
                 
                 if (numberWords.containsKey(wNormalized)) {
                     String numStr = numberWords.get(wNormalized);
-                    int v = Integer.parseInt(numStr);
-                    fracTotal = fracTotal.add(new BigDecimal(v));
+                    BigDecimal val = new BigDecimal(numStr);
+                    
+                    if (val.scale() > 0) break;
+
+                    int v = val.intValue();
+                    if (v >= 0 && v <= 9) {
+                        fracBuilder.append(v);
+                    } else {
+                        fracBuilder.append(val.toPlainString());
+                    }
                     idx++;
-                    continue;
-                }
-                
-                if (w.matches("\\d+")) {
-                    // Direct digit sequence
-                    fracDigits.append(w);
+                } else if (w.matches("\\d+")) {
+                    fracBuilder.append(w);
                     idx++;
-                    continue;
+                } else {
+                    break;
                 }
-                
-                // Not a number, stop
-                break;
             }
             
-            // Build fractional string
-            String fracString = "";
-            if (fracDigits.length() > 0) {
-                fracString = fracDigits.toString();
-            } else if (fracTotal.compareTo(BigDecimal.ZERO) > 0) {
-                fracString = fracTotal.toPlainString();
-            }
+            String fracString = fracBuilder.toString();
+            String wholeString = total.toPlainString().replace('.', ',');
 
-            String wholeString = total.toPlainString();
             if (fracString.isEmpty()) {
                 return new ParseResult(wholeString, idx);
             } else {
-                // Use comma as decimal separator for Brazilian Portuguese
                 return new ParseResult(wholeString + "," + fracString, idx);
             }
         }
 
-        // No decimal
-        return new ParseResult(total.toPlainString(), idx);
+        if (!foundAny) {
+            return null;
+        }
+        return new ParseResult(total.toPlainString().replace('.', ','), idx);
     }
     
     /**
@@ -479,7 +462,7 @@ public class VoiceCommandProcessor {
     private static boolean isDecimalMarker(String word) {
         if (word == null) return false;
         return word.equals("virgula") || word.equals("ponto") || word.equals("decimal") || 
-               word.equals("dot") || word.equals("comma");
+               word.equals("dot") || word.equals("comma") || word.equals("com");
     }
 
     public static boolean isCalculationCommand(String expression) {
