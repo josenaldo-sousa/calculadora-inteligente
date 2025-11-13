@@ -134,7 +134,7 @@ public class Calculator {
         expr = expr.replace("×", "*").replace("÷", "/").replace("−", "-").replace(',', '.');
 
         Stack<BigDecimal> numbers = new Stack<>();
-        Stack<Character> operators = new Stack<>();
+        Stack<String> operators = new Stack<>();
         int i = 0;
         boolean lastTokenWasOperator = true;
 
@@ -147,21 +147,29 @@ public class Calculator {
             }
 
             if (c == '(') {
-                operators.push(c);
+                operators.push("(");
                 lastTokenWasOperator = true;
                 i++;
             } else if (c == ')') {
-                while (!operators.isEmpty() && operators.peek() != '(') {
+                while (!operators.isEmpty() && !operators.peek().equals("(")) {
                     if (numbers.size() < 2) throw new ArithmeticException("Expressão inválida");
                     BigDecimal b = numbers.pop();
                     BigDecimal a = numbers.pop();
                     numbers.push(applyOperation(operators.pop(), b, a));
                 }
-                if (!operators.isEmpty()) operators.pop(); // Pop '('
+                if (!operators.isEmpty()) operators.pop();
+                if (!operators.isEmpty()) {
+                    String top = operators.peek();
+                    if (isFunction(top)) {
+                        operators.pop();
+                        BigDecimal arg = numbers.pop();
+                        numbers.push(applyFunction(top, arg));
+                    }
+                }
                 lastTokenWasOperator = false;
                 i++;
-            } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%') {
-                if (c == '-' && lastTokenWasOperator) { // Unary minus
+            } else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^') {
+                if (c == '-' && lastTokenWasOperator) {
                     i++;
                     StringBuilder num = new StringBuilder("-");
                     while (i < expr.length() && (Character.isDigit(expr.charAt(i)) || expr.charAt(i) == '.')) {
@@ -170,13 +178,14 @@ public class Calculator {
                     numbers.push(new BigDecimal(num.toString()));
                     lastTokenWasOperator = false;
                 } else { // Binary operator
-                    while (!operators.isEmpty() && hasPrecedence(c, operators.peek())) {
+                    String op = String.valueOf(c);
+                    while (!operators.isEmpty() && hasPrecedence(op, operators.peek())) {
                         if (numbers.size() < 2) throw new ArithmeticException("Expressão inválida");
                         BigDecimal b = numbers.pop();
                         BigDecimal a = numbers.pop();
                         numbers.push(applyOperation(operators.pop(), b, a));
                     }
-                    operators.push(c);
+                    operators.push(op);
                     lastTokenWasOperator = true;
                     i++;
                 }
@@ -187,43 +196,111 @@ public class Calculator {
                 }
                 numbers.push(new BigDecimal(num.toString()));
                 lastTokenWasOperator = false;
+            } else if (Character.isLetter(c) || c == '√') {
+                StringBuilder name = new StringBuilder();
+                if (c == '√') {
+                    name.append('√');
+                    i++;
+                } else {
+                    while (i < expr.length() && Character.isLetter(expr.charAt(i))) {
+                        name.append(expr.charAt(i++));
+                    }
+                }
+                String func = name.toString();
+                if (isFunction(func)) {
+                    operators.push(func);
+                    lastTokenWasOperator = true;
+                }
+            } else if (c == '!') {
+                if (numbers.isEmpty()) throw new ArithmeticException("Expressão inválida");
+                BigDecimal a = numbers.pop();
+                numbers.push(applyFactorial(a));
+                i++;
             } else {
                 i++; // Skip unknown characters
             }
         }
 
         while (!operators.isEmpty()) {
-            if (numbers.size() < 2) throw new ArithmeticException("Expressão inválida");
-            BigDecimal b = numbers.pop();
-            BigDecimal a = numbers.pop();
-            numbers.push(applyOperation(operators.pop(), b, a));
+            String op = operators.pop();
+            if (isFunction(op)) {
+                if (numbers.isEmpty()) throw new ArithmeticException("Expressão inválida");
+                BigDecimal a = numbers.pop();
+                numbers.push(applyFunction(op, a));
+            } else {
+                if (numbers.size() < 2) throw new ArithmeticException("Expressão inválida");
+                BigDecimal b = numbers.pop();
+                BigDecimal a = numbers.pop();
+                numbers.push(applyOperation(op, b, a));
+            }
         }
 
         return numbers.isEmpty() ? BigDecimal.ZERO : numbers.pop();
     }
 
-    private boolean hasPrecedence(char op1, char op2) {
-        if (op2 == '(' || op2 == ')') {
-            return false;
-        }
-        // Para avaliação da esquerda para a direita, todos os operadores (exceto parênteses) têm a mesma precedência.
-        return true;
+    private boolean hasPrecedence(String op1, String op2) {
+        if (op2.equals("(")) return false;
+        int p1 = precedence(op1);
+        int p2 = precedence(op2);
+        if (p2 > p1) return true;
+        if (p2 == p1 && !isRightAssociative(op1)) return true;
+        return false;
     }
 
-    private BigDecimal applyOperation(char operator, BigDecimal b, BigDecimal a) throws ArithmeticException {
+    private int precedence(String op) {
+        if (op.equals("^") ) return 3;
+        if (op.equals("*") || op.equals("/") || op.equals("%")) return 2;
+        if (op.equals("+") || op.equals("-")) return 1;
+        return 0;
+    }
+
+    private boolean isRightAssociative(String op) {
+        return op.equals("^");
+    }
+
+    private BigDecimal applyOperation(String operator, BigDecimal b, BigDecimal a) throws ArithmeticException {
         switch (operator) {
-            case '+': return a.add(b);
-            case '-': return a.subtract(b);
-            case '*': return a.multiply(b);
-            case '/':
+            case "+": return a.add(b);
+            case "-": return a.subtract(b);
+            case "*": return a.multiply(b);
+            case "/":
                 if (b.compareTo(BigDecimal.ZERO) == 0) {
                     throw new ArithmeticException("Não é possível dividir por zero");
                 }
                 return a.divide(b, 10, RoundingMode.HALF_UP);
-            case '%':
+            case "%":
                 return a.multiply(b.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP));
+            case "^":
+                int exp = b.intValue();
+                BigDecimal pow = BigDecimal.ONE;
+                for (int k = 0; k < exp; k++) pow = pow.multiply(a);
+                return pow;
         }
         return BigDecimal.ZERO;
+    }
+
+    private boolean isFunction(String name) {
+        return name.equals("sin") || name.equals("cos") || name.equals("tan") ||
+               name.equals("sqrt") || name.equals("log") || name.equals("ln") || name.equals("√");
+    }
+
+    private BigDecimal applyFunction(String name, BigDecimal a) {
+        double v = a.doubleValue();
+        if (name.equals("sin")) return new BigDecimal(Math.sin(Math.toRadians(v)));
+        if (name.equals("cos")) return new BigDecimal(Math.cos(Math.toRadians(v)));
+        if (name.equals("tan")) return new BigDecimal(Math.tan(Math.toRadians(v)));
+        if (name.equals("sqrt") || name.equals("√")) return new BigDecimal(Math.sqrt(v));
+        if (name.equals("log")) return new BigDecimal(Math.log10(v));
+        if (name.equals("ln")) return new BigDecimal(Math.log(v));
+        return a;
+    }
+
+    private BigDecimal applyFactorial(BigDecimal a) {
+        int n = a.intValue();
+        if (n < 0) throw new ArithmeticException("Expressão inválida");
+        BigDecimal res = BigDecimal.ONE;
+        for (int k = 2; k <= n; k++) res = res.multiply(BigDecimal.valueOf(k));
+        return res;
     }
 
     public String calculatePercent() {
@@ -284,6 +361,45 @@ public class Calculator {
             } else {
                 expression = "(" + inner + ")";
             }
+        }
+    }
+
+    public void appendFunction(String funcName, String inner) {
+        if (funcName == null || inner == null) return;
+        String f = funcName.trim();
+        String in = inner.trim();
+        if (f.isEmpty() || in.isEmpty()) return;
+        if (currentNumber.length() > 0) {
+            expression += currentNumber.toString();
+            currentNumber = new StringBuilder();
+            startNewNumber = true;
+        }
+        expression = expression.trim();
+        if (!expression.isEmpty()) {
+            expression = expression + " " + f + "(" + in + ")";
+        } else {
+            expression = f + "(" + in + ")";
+        }
+    }
+
+    public void appendConstant(String value) {
+        if (value == null || value.isEmpty()) return;
+        String v = value.replace('.', ',');
+        if (startNewNumber) {
+            currentNumber = new StringBuilder();
+            startNewNumber = false;
+        }
+        currentNumber.append(v);
+    }
+
+    public void appendFactorial() {
+        String full = getFullExpression();
+        if (currentNumber.length() > 0) {
+            expression += currentNumber.toString() + "!";
+            currentNumber = new StringBuilder();
+            startNewNumber = true;
+        } else if (!full.isEmpty()) {
+            expression = full + "!";
         }
     }
 }

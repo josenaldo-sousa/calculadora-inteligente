@@ -6,6 +6,16 @@
     android:background="?attr/colorSurface"
     android:padding="@dimen/margin_medium">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:title="@string/app_name"
+        app:titleCentered="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Voice preview: recognized raw text and converted expression -->
     <LinearLayout
         android:id="@+id/voicePreview"
@@ -13,7 +23,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="@dimen/margin_small"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone">
@@ -56,7 +66,7 @@
         app:cardCornerRadius="@dimen/display_corner_radius"
         app:cardElevation="@dimen/display_elevation"
         app:cardBackgroundColor="?attr/colorSurfaceVariant"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -96,7 +106,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:columnCount="4"
-        android:rowCount="6"
+        android:rowCount="7"
         android:alignmentMode="alignMargins"
         android:columnOrderPreserved="false"
         app:layout_constraintTop_toBottomOf="@id/displayCard"
@@ -397,6 +407,38 @@
             app:cornerRadius="@dimen/button_corner_radius"
             android:backgroundTint="@color/btn_function"
             android:textColor="@color/btn_function_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSqrt"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="5"
+            android:layout_column="2"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_sqrt"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPower"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="5"
+            android:layout_column="3"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_power"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPercent"
             style="@style/Widget.MaterialComponents.Button"
@@ -477,3 +519,66 @@
     </com.google.android.gms.ads.AdView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSin"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="6"
+            android:layout_column="0"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_sin"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCos"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="6"
+            android:layout_column="1"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_cos"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTan"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="6"
+            android:layout_column="2"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_tan"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLog"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_row="6"
+            android:layout_column="3"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1"
+            android:layout_margin="@dimen/margin_small"
+            android:text="@string/btn_log"
+            android:textSize="@dimen/button_text_size"
+            app:cornerRadius="@dimen/button_corner_radius"
+            android:backgroundTint="@color/btn_function"
+            android:textColor="@color/btn_function_text" />

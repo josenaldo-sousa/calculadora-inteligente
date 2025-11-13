@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvExpression;
     private TextView tvVoiceRaw;
     private TextView tvVoiceConverted;
+    private View voicePreview;
+    private MaterialButton btnVoice;
     private Calculator calculator;
     private SpeechRecognizer speechRecognizer;
     private boolean isListening = false;
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         tvExpression = findViewById(R.id.tvExpression);
         tvVoiceRaw = findViewById(R.id.tvVoiceRaw);
         tvVoiceConverted = findViewById(R.id.tvVoiceConverted);
+        voicePreview = findViewById(R.id.voicePreview);
+        btnVoice = findViewById(R.id.btnVoice);
         calculator = new Calculator();
 
         // Initialize speech recognizer
@@ -76,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onReadyForSpeech(Bundle params) {
                     isListening = true;
+                    if (btnVoice != null) btnVoice.setEnabled(false);
+                    if (voicePreview != null) voicePreview.setVisibility(View.VISIBLE);
                 }
 
                 @Override
@@ -93,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onEndOfSpeech() {
                     isListening = false;
+                    if (btnVoice != null) btnVoice.setEnabled(true);
                 }
 
                 @Override
@@ -129,16 +136,33 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                     Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                    if (btnVoice != null) btnVoice.setEnabled(true);
+                    if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> startListening(), 400);
+                    }
                 }
 
                 @Override
                 public void onResults(Bundle results) {
                     isListening = false;
+                    if (btnVoice != null) btnVoice.setEnabled(true);
                     ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                     if (matches != null && !matches.isEmpty()) {
-                        String voiceText = matches.get(0).trim();
-                        if (!voiceText.isEmpty()) {
-                            processVoiceInput(voiceText);
+                        String best = null;
+                        int bestScore = -1;
+                        for (String m : matches) {
+                            if (m == null) continue;
+                            String t = m.trim();
+                            if (t.isEmpty()) continue;
+                            String processed = VoiceCommandProcessor.processVoiceCommand(t);
+                            int score = 0;
+                            if (VoiceCommandProcessor.containsOperator(processed)) score += 2;
+                            score += Math.min(processed.length(), 40);
+                            if (processed.endsWith("=")) score += 3;
+                            if (score > bestScore) { bestScore = score; best = t; }
+                        }
+                        if (best != null) {
+                            processVoiceInput(best);
                         }
                     }
                 }
@@ -149,10 +173,9 @@ public class MainActivity extends AppCompatActivity {
                     if (partial == null || partial.isEmpty()) return;
                     String partialText = partial.get(0).trim();
                     if (!partialText.isEmpty()) {
-                        // The following lines that update the UI with voice text will be removed.
-                        // if (tvVoiceRaw != null) tvVoiceRaw.setText(partialText);
-                        // String processedPreview = VoiceCommandProcessor.processVoiceCommand(partialText);
-                        // if (tvVoiceConverted != null) tvVoiceConverted.setText(VoiceCommandProcessor.toHumanReadable(processedPreview));
+                        if (tvVoiceRaw != null) tvVoiceRaw.setText(partialText);
+                        String processedPreview = VoiceCommandProcessor.processVoiceCommand(partialText);
+                        if (tvVoiceConverted != null) tvVoiceConverted.setText(VoiceCommandProcessor.toHumanReadable(processedPreview));
                     }
                 }
 
@@ -207,6 +230,14 @@ public class MainActivity extends AppCompatActivity {
             updateDisplay();
         });
 
+        View power = findViewById(R.id.btnPower);
+        if (power != null) {
+            power.setOnClickListener(v -> {
+                calculator.appendOperator("^");
+                updateDisplay();
+            });
+        }
+
         // Parênteses
         findViewById(R.id.btnParenOpen).setOnClickListener(v -> {
             calculator.appendParenthesis("(");
@@ -251,6 +282,51 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnVoice).setOnClickListener(v -> {
             startVoiceRecognition();
         });
+
+        View sqrt = findViewById(R.id.btnSqrt);
+        if (sqrt != null) {
+            sqrt.setOnClickListener(v -> {
+                String inner = calculator.getCurrentDisplay();
+                calculator.appendFunction("√", inner);
+                updateDisplay();
+            });
+        }
+
+        View sin = findViewById(R.id.btnSin);
+        if (sin != null) {
+            sin.setOnClickListener(v -> {
+                String inner = calculator.getCurrentDisplay();
+                calculator.appendFunction("sin", inner);
+                updateDisplay();
+            });
+        }
+
+        View cos = findViewById(R.id.btnCos);
+        if (cos != null) {
+            cos.setOnClickListener(v -> {
+                String inner = calculator.getCurrentDisplay();
+                calculator.appendFunction("cos", inner);
+                updateDisplay();
+            });
+        }
+
+        View tan = findViewById(R.id.btnTan);
+        if (tan != null) {
+            tan.setOnClickListener(v -> {
+                String inner = calculator.getCurrentDisplay();
+                calculator.appendFunction("tan", inner);
+                updateDisplay();
+            });
+        }
+
+        View log = findViewById(R.id.btnLog);
+        if (log != null) {
+            log.setOnClickListener(v -> {
+                String inner = calculator.getCurrentDisplay();
+                calculator.appendFunction("log", inner);
+                updateDisplay();
+            });
+        }
     }
 
     private void startVoiceRecognition() {
@@ -276,17 +352,11 @@ public class MainActivity extends AppCompatActivity {
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-BR");
             intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.voice_prompt));
-            
-            // Prefer multiple results to improve accuracy
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
-            
-            // Tweak silence timeouts to improve recognition stability (milliseconds)
-            // Longer silence tolerance for better number detection
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+            intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1800L);
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
-            
-            // Prefer online recognition for better accuracy with numbers
-            // Comentado: intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false);
 
             Toast.makeText(this, getString(R.string.voice_prompt), Toast.LENGTH_SHORT).show();
             speechRecognizer.startListening(intent);
@@ -342,6 +412,27 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     calculator.appendOperator(p);
                 }
+            }
+            else if (p.equals("√") || p.equals("sin") || p.equals("cos") || p.equals("tan") || p.equals("log") || p.equals("ln")) {
+                String in = "";
+                int nextIndex = -1;
+                String[] partsLocal = parts;
+                for (int k = 0; k < partsLocal.length; k++) {
+                    if (partsLocal[k].equals(p)) {
+                        nextIndex = k + 1;
+                        break;
+                    }
+                }
+                if (nextIndex >= 0 && nextIndex < parts.length) {
+                    in = parts[nextIndex];
+                }
+                if (!in.isEmpty()) {
+                    String fname = p.equals("√") ? "√" : p;
+                    calculator.appendFunction(fname, in);
+                }
+            }
+            else if (p.equals("!")) {
+                calculator.appendFactorial();
             }
         }
 

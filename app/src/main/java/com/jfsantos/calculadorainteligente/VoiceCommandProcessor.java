@@ -67,6 +67,8 @@ public class VoiceCommandProcessor {
         numberWords.put("milhao", "1000000");  // Sem acento
         numberWords.put("bilhão", "1000000000");
         numberWords.put("bilhao", "1000000000"); // Sem acento
+        numberWords.put("pi", "3.1415926535");
+        numberWords.put("euler", "2.7182818284");
         
         // Alternative pronunciations and common variations
         numberWords.put("meia", "0.5");      // meia dúzia, etc
@@ -117,6 +119,28 @@ public class VoiceCommandProcessor {
         operatorWords.put("porcentagem", "%");
         operatorWords.put("percentual", "%");
         operatorWords.put("percent", "%");  // English
+
+        operatorWords.put("abre parenteses", "(");
+        operatorWords.put("abre parenteses", "(");
+        operatorWords.put("abre parentese", "(");
+        operatorWords.put("abre parentese", "(");
+        operatorWords.put("fecha parenteses", ")");
+        operatorWords.put("fecha parentese", ")");
+
+        operatorWords.put("raiz quadrada", "√");
+        operatorWords.put("raiz", "√");
+        operatorWords.put("seno", "sin");
+        operatorWords.put("coseno", "cos");
+        operatorWords.put("cosseno", "cos");
+        operatorWords.put("tangente", "tan");
+        operatorWords.put("logaritmo", "log");
+        operatorWords.put("log", "log");
+        operatorWords.put("log natural", "ln");
+        operatorWords.put("ln", "ln");
+        operatorWords.put("potencia", "^");
+        operatorWords.put("potência", "^");
+        operatorWords.put("elevado a", "^");
+        operatorWords.put("fatorial", "!");
         
         // NOTE: Decimal separators (virgula, ponto, etc.) are NOT in operatorWords
         // They are handled specially within parseNumber() method

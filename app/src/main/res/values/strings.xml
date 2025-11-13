@@ -22,6 +22,14 @@
     <string name="btn_decimal">.</string>
     <string name="btn_percent">%</string>
     <string name="btn_voice">🎤</string>
+    <string name="btn_sqrt">√</string>
+    <string name="btn_power">^</string>
+    <string name="btn_sin">sin</string>
+    <string name="btn_cos">cos</string>
+    <string name="btn_tan">tan</string>
+    <string name="btn_log">log</string>
+    <string name="btn_ln">ln</string>
+    <string name="btn_factorial">!</string>
     <string name="voice_prompt">Diga uma operação matemática</string>
     <string name="voice_error">Erro ao reconhecer voz</string>
     <string name="voice_not_available">Reconhecimento de voz não disponível</string>
