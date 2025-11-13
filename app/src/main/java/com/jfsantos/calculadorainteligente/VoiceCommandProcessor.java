@@ -97,7 +97,6 @@ public class VoiceCommandProcessor {
         operatorWords.put("multiplica", "×");
         operatorWords.put("x", "×");        // letra X
         operatorWords.put("*", "×");        // asterisco
-        operatorWords.put("por", "×");      // "5 por 2"
         operatorWords.put("times", "×");    // English fallback
         
         // Division
@@ -148,6 +147,38 @@ public class VoiceCommandProcessor {
         operatorWords.put("deletar", "DEL");
         operatorWords.put("delete", "DEL");  // English
         operatorWords.put("remove", "DEL");  // English
+        
+        // Adicionar variações normalizadas (sem acentos) para operadores com acentos
+        addNormalizedOperators();
+    }
+    
+    /**
+     * Adiciona versões normalizadas (sem acentos) de operadores que têm acentos
+     */
+    private static void addNormalizedOperators() {
+        Map<String, String> toAdd = new HashMap<>();
+        
+        for (Map.Entry<String, String> entry : operatorWords.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            
+            // Criar versão normalizada
+            String normalized = key
+                .replace("à", "a").replace("á", "a").replace("â", "a").replace("ã", "a")
+                .replace("è", "e").replace("é", "e").replace("ê", "e")
+                .replace("ì", "i").replace("í", "i").replace("î", "i")
+                .replace("ò", "o").replace("ó", "o").replace("ô", "o").replace("õ", "o")
+                .replace("ù", "u").replace("ú", "u").replace("û", "u")
+                .replace("ç", "c");
+            
+            // Se for diferente, adicionar
+            if (!normalized.equals(key) && !operatorWords.containsKey(normalized)) {
+                toAdd.put(normalized, value);
+            }
+        }
+        
+        // Adicionar todas as variações normalizadas
+        operatorWords.putAll(toAdd);
     }
 
     public static String processVoiceCommand(String voiceText) {
@@ -204,16 +235,17 @@ public class VoiceCommandProcessor {
         int i = 0;
         while (i < words.length) {
             String word = words[i].toLowerCase();
+            String wordNormalized = normalizeText(word);
 
             // Skip filler words
-            if (word.equals("e") || word.equals("de") || word.isEmpty()) { 
+            if (wordNormalized.equals("e") || wordNormalized.equals("de") || wordNormalized.isEmpty()) { 
                 i++; 
                 continue; 
             }
 
             // Try compound operator (two-word) first
             if (i + 1 < words.length) {
-                String compound = (word + " " + words[i + 1]).toLowerCase();
+                String compound = (wordNormalized + " " + normalizeText(words[i + 1].toLowerCase()));
                 if (operatorWords.containsKey(compound)) {
                     String operator = operatorWords.get(compound);
                     if (operator.equals("=")) return result.toString().trim() + " =";
@@ -226,7 +258,7 @@ public class VoiceCommandProcessor {
             }
 
             // Number parsing (including composed numbers and decimals)
-            if (isNumberWord(word) || word.matches("\\d+")) {
+            if (isNumberWord(wordNormalized) || word.matches("\\d+")) {
                 ParseResult pr = parseNumber(words, i);
                 if (pr != null) {
                     if (result.length() > 0 && !result.toString().endsWith(" ")) {
@@ -234,22 +266,41 @@ public class VoiceCommandProcessor {
                     }
                     result.append(pr.numberString);
                     i = pr.nextIndex;
-                    // After parsing a number, check if the next word is an operator
-                    if (i < words.length && operatorWords.containsKey(words[i].toLowerCase())) {
-                        String operator = operatorWords.get(words[i].toLowerCase());
-                        if (operator.equals("=")) {
-                            return result.toString().trim() + " =";
+                    // After parsing a number, check if the next word(s) is an operator
+                    if (i < words.length) {
+                        // First try compound operator (e.g., "dividido por")
+                        if (i + 1 < words.length) {
+                            String nextWordNorm = normalizeText(words[i].toLowerCase());
+                            String nextNextWordNorm = normalizeText(words[i + 1].toLowerCase());
+                            String compound = nextWordNorm + " " + nextNextWordNorm;
+                            if (operatorWords.containsKey(compound)) {
+                                String operator = operatorWords.get(compound);
+                                if (operator.equals("=")) {
+                                    return result.toString().trim() + " =";
+                                }
+                                result.append(" ").append(operator).append(" ");
+                                i += 2;
+                                continue;
+                            }
                         }
-                        result.append(" ").append(operator).append(" ");
-                        i++;
+                        // Then try single-word operator
+                        String nextWordNormalized = normalizeText(words[i].toLowerCase());
+                        if (operatorWords.containsKey(nextWordNormalized)) {
+                            String operator = operatorWords.get(nextWordNormalized);
+                            if (operator.equals("=")) {
+                                return result.toString().trim() + " =";
+                            }
+                            result.append(" ").append(operator).append(" ");
+                            i++;
+                        }
                     }
                     continue;
                 }
             }
 
             // Single-word operators
-            if (operatorWords.containsKey(word)) {
-                String operator = operatorWords.get(word);
+            if (operatorWords.containsKey(wordNormalized)) {
+                String operator = operatorWords.get(wordNormalized);
                 if (operator.equals("=")) return result.toString().trim() + " =";
                 if (operator.equals("C")) return "CLEAR";
                 if (operator.equals("DEL")) return "DELETE";
@@ -278,8 +329,9 @@ public class VoiceCommandProcessor {
     // Helper to check if a word maps to a number word
     private static boolean isNumberWord(String w) {
         if (w == null) return false;
-        return numberWords.containsKey(w) || w.equals("virgula") || w.equals("ponto") || 
-               w.equals("decimal") || w.equals("dot") || w.equals("comma");
+        String normalized = normalizeText(w);
+        return numberWords.containsKey(normalized) || normalized.equals("virgula") || normalized.equals("ponto") || 
+               normalized.equals("decimal") || normalized.equals("dot") || normalized.equals("comma");
     }
 
     // ParseResult holds parsed number string and next index
@@ -291,113 +343,125 @@ public class VoiceCommandProcessor {
 
 
     // Parse a sequence of number words starting at index i. Supports decimals with 'virgula', 'ponto', 'vírgula', 'decimal'.
+    // Portuguese number composition rules:
+    // - "vinte e um" = 20 + 1 = 21
+    // - "cento e trinta" = 100 + 30 = 130
+    // - "dois mil" = 2 * 1000 = 2000
+    // - "dois mil trezentos e quarenta e cinco" = 2 * 1000 + 300 + 40 + 5 = 2345
     private static ParseResult parseNumber(String[] words, int i) {
         int idx = i;
-        // Parse whole part
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal current = BigDecimal.ZERO;
         boolean foundAny = false;
 
         while (idx < words.length) {
             String w = words[idx].toLowerCase();
+            String wNormalized = normalizeText(w);
             
-            // Skip connector words (e, de)
-            if (w.equals("e") || w.equals("de")) {
+            // Skip connector words
+            if (wNormalized.equals("e") || wNormalized.equals("de")) {
                 idx++;
                 continue;
             }
             
-            if (numberWords.containsKey(w)) {
-                foundAny = true;
-                BigDecimal val = new BigDecimal(numberWords.get(w));
-                int v = val.intValue();
-
-                if (v >= 1000) { // Handle "mil", "milhão", etc
-                    if (current.compareTo(BigDecimal.ZERO) == 0) {
-                        current = BigDecimal.ONE;
-                    }
-                    current = current.multiply(val);
-                    total = total.add(current);
-                    current = BigDecimal.ZERO;
-                } else if (v >= 100) { // Handle hundreds "cento", "duzentos", etc
-                    if (current.compareTo(BigDecimal.ZERO) > 0) {
-                        // Handles cases like "cem e vinte"
-                        total = total.add(current.multiply(BigDecimal.valueOf(100)));
-                    } else {
-                        total = total.add(val);
-                    }
-                    current = BigDecimal.ZERO;
-                } else { // Handle tens and units (0-99)
-                    current = current.add(val);
-                }
-                idx++;
-                continue;
-            }
-            
-            // If decimal marker found, break to fractional parsing
-            if (w.equals("virgula") || w.equals("ponto") || w.equals("decimal") || 
-                w.equals("dot") || w.equals("comma")) {
+            // If decimal marker found, break
+            if (isDecimalMarker(wNormalized)) {
                 break;
             }
             
-            // Not a number word, stop parsing
-            break;
+            if (!numberWords.containsKey(wNormalized)) {
+                // Not a number word, stop parsing
+                break;
+            }
+            
+            foundAny = true;
+            String numStr = numberWords.get(wNormalized);
+            BigDecimal val = new BigDecimal(numStr);
+            int v = val.intValue();
+
+            // Composição em português:
+            // - Unidades e dezenas (0-99): acumula em 'current'
+            // - Centenas (100-900): adiciona ao current (não ao total)
+            // - Milhares+ (1000+): multiplica (current + total) e reseta
+            
+            if (v >= 1000) {
+                // mil, milhão, etc
+                // Combina current e total para multiplicar
+                BigDecimal base = total.add(current);
+                if (base.compareTo(BigDecimal.ZERO) == 0) {
+                    base = BigDecimal.ONE;
+                }
+                // Multiplica: "cento e vinte e três mil" = (100 + 20 + 3) * 1000
+                total = base.multiply(val);
+                current = BigDecimal.ZERO;
+            } 
+            else if (v >= 100) {
+                // Centenas: "cento", "duzentos", etc - acumula em current, não em total
+                current = current.add(val);
+            } 
+            else {
+                // Unidades e dezenas (0-99): apenas acumula
+                current = current.add(val);
+            }
+            
+            idx++;
         }
 
+        // Adiciona qualquer valor restante em 'current'
         total = total.add(current);
 
-        // Check if we found any numbers
-        if (!foundAny && !(idx < words.length && isDecimalMarker(words[idx]))) {
+        // Verificar se encontrou algo
+        if (!foundAny) {
             return null;
         }
 
         // If decimal part exists
-        if (idx < words.length && isDecimalMarker(words[idx])) {
+        if (idx < words.length && isDecimalMarker(normalizeText(words[idx].toLowerCase()))) {
             idx++; // skip marker
-            // parse fractional as integer sequence
+            
+            // Parse fractional part
             StringBuilder fracDigits = new StringBuilder();
             BigDecimal fracTotal = BigDecimal.ZERO;
-            BigDecimal fracCurrent = BigDecimal.ZERO;
-            boolean foundFrac = false;
             
             while (idx < words.length) {
                 String w = words[idx].toLowerCase();
+                String wNormalized = normalizeText(w);
                 
-                if (w.equals("e") || w.equals("de")) { 
+                // Skip connectors
+                if (wNormalized.equals("e") || wNormalized.equals("de")) { 
                     idx++; 
                     continue; 
                 }
                 
-                if (numberWords.containsKey(w)) {
-                    foundFrac = true;
-                    int v = Integer.parseInt(numberWords.get(w));
-                    if (v >= 1000) {
-                        if (fracCurrent.compareTo(BigDecimal.ZERO) == 0) fracCurrent = BigDecimal.ONE;
-                        fracCurrent = fracCurrent.multiply(new BigDecimal(v));
-                        fracTotal = fracTotal.add(fracCurrent);
-                        fracCurrent = BigDecimal.ZERO;
-                    } else {
-                        fracCurrent = fracCurrent.add(new BigDecimal(v));
-                    }
+                // Check for another decimal marker (shouldn't happen but safety)
+                if (isDecimalMarker(wNormalized)) {
+                    break;
+                }
+                
+                if (numberWords.containsKey(wNormalized)) {
+                    String numStr = numberWords.get(wNormalized);
+                    int v = Integer.parseInt(numStr);
+                    fracTotal = fracTotal.add(new BigDecimal(v));
                     idx++;
                     continue;
                 }
                 
                 if (w.matches("\\d+")) {
-                    // append digits directly
+                    // Direct digit sequence
                     fracDigits.append(w);
-                    foundFrac = true;
                     idx++;
                     continue;
                 }
+                
+                // Not a number, stop
                 break;
             }
             
-            fracTotal = fracTotal.add(fracCurrent);
+            // Build fractional string
             String fracString = "";
             if (fracDigits.length() > 0) {
                 fracString = fracDigits.toString();
-            } else if (foundFrac) {
+            } else if (fracTotal.compareTo(BigDecimal.ZERO) > 0) {
                 fracString = fracTotal.toPlainString();
             }
 
