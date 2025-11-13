@@ -2,9 +2,26 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Corpo da calculadora -->
     <path
-        android:fillColor="#1976D2"
-        android:pathData="M24,4C12.95,4 4,12.95 4,24C4,35.05 12.95,44 24,44C35.05,44 44,35.05 44,24C44,12.95 35.05,4 24,4ZM24,40C15.16,40 8,32.84 8,24C8,15.16 15.16,8 24,8C32.84,8 40,15.16 40,24C40,32.84 32.84,40 24,40ZM24,14C19.58,14 16,17.58 16,22C16,26.42 19.58,30 24,30C28.42,30 32,26.42 32,22C32,17.58 28.42,14 24,14ZM24,28C21.24,28 19,25.76 19,23C19,20.24 21.24,18 24,18C26.76,18 29,20.24 29,23C29,25.76 26.76,28 24,28Z" />
+        android:fillColor="@color/md_theme_primary"
+        android:pathData="M14,6 h40 a4,4 0 0 1 4,4 v36 a4,4 0 0 1 -4,4 h-40 a4,4 0 0 1 -4,-4 v-36 a4,4 0 0 1 4,-4 z" />
+
+    <!-- Tela da calculadora -->
+    <path
+        android:fillColor="#263238"
+        android:pathData="M18,13 h24 v8 h-24 z" />
+
+    <!-- Botões -->
+    <path android:fillColor="#ECEFF1" android:pathData="M15,25 h8 v8 h-8 z" />
+    <path android:fillColor="#ECEFF1" android:pathData="M26,25 h8 v8 h-8 z" />
+    <path android:fillColor="#FFEB3B" android:pathData="M37,25 h8 v8 h-8 z" />
+
+    <path android:fillColor="#ECEFF1" android:pathData="M15,36 h8 v8 h-8 z" />
+    <path android:fillColor="#ECEFF1" android:pathData="M26,36 h8 v8 h-8 z" />
+    <path android:fillColor="#FFEB3B" android:pathData="M37,36 h8 v8 h-8 z" />
+
 </vector>
