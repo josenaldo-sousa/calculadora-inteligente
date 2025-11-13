@@ -82,12 +82,12 @@ public class VoiceCommandProcessor {
         operatorWords.put("plus", "+");     // English fallback
         
         // Subtraction
-        operatorWords.put("menos", "−");
-        operatorWords.put("subtração", "−");
-        operatorWords.put("subtrair", "−");
-        operatorWords.put("subtraia", "−");
-        operatorWords.put("subitrai", "−"); // Variação de pronúncia
-        operatorWords.put("minus", "−");    // English fallback
+        operatorWords.put("menos", "-");
+        operatorWords.put("subtração", "-");
+        operatorWords.put("subtrair", "-");
+        operatorWords.put("subtraia", "-");
+        operatorWords.put("subitrai", "-"); // Variação de pronúncia
+        operatorWords.put("minus", "-");    // English fallback
         
         // Multiplication
         operatorWords.put("vezes", "×");
@@ -471,7 +471,7 @@ public class VoiceCommandProcessor {
         }
         
         // Check if it contains operators or equals sign
-        return expression.contains("+") || expression.contains("−") || 
+        return expression.contains("+") || expression.contains("-") || 
                expression.contains("×") || expression.contains("÷") ||
                expression.contains("=") || expression.contains("%");
     }
@@ -507,7 +507,6 @@ public class VoiceCommandProcessor {
             return "Comando de voz não reconhecido";
         }
         return expression
-                .replace("−", "-")
                 .replace("×", "*")
                 .replace("÷", "/");
     }
