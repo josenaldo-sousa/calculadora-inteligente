@@ -280,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.btnVoice).setOnClickListener(v -> {
+            prepareForVoiceInput();
             startVoiceRecognition();
         });
 
@@ -326,6 +327,25 @@ public class MainActivity extends AppCompatActivity {
                 calculator.appendFunction("log", inner);
                 updateDisplay();
             });
+        }
+    }
+
+    private void prepareForVoiceInput() {
+        calculator.clear();
+        if (tvExpression != null) {
+            tvExpression.setText("");
+        }
+        if (tvResult != null) {
+            tvResult.setText("");
+        }
+        if (tvVoiceRaw != null) {
+            tvVoiceRaw.setText("");
+        }
+        if (tvVoiceConverted != null) {
+            tvVoiceConverted.setText("");
+        }
+        if (voicePreview != null) {
+            voicePreview.setVisibility(View.GONE);
         }
     }
 
