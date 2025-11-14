@@ -38,9 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_CALC_START_NEW = "key_calc_start_new";
     private static final String KEY_DISPLAY_EXPRESSION = "key_display_expression";
     private static final String KEY_DISPLAY_RESULT = "key_display_result";
-    private static final String KEY_VOICE_RAW = "key_voice_raw";
-    private static final String KEY_VOICE_CONVERTED = "key_voice_converted";
-    private static final String KEY_VOICE_PREVIEW_VISIBLE = "key_voice_preview_visible";
     private static final String KEY_ADVANCED_EXPANDED = "key_advanced_expanded";
     private static final String CONST_PI = "3.141592653589793";
     private static final String CONST_E = "2.718281828459045";
@@ -48,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvResult;
     private TextView tvExpression;
-    private TextView tvVoiceRaw;
-    private TextView tvVoiceConverted;
-    private View voicePreview;
     private MaterialButton btnVoice;
     private MaterialButton btnToggleAdvanced;
     private View advancedContainer;
@@ -98,9 +92,6 @@ public class MainActivity extends AppCompatActivity {
             btnVoice.setEnabled(true);
         }
 
-        if (voicePreview != null) {
-            voicePreview.setVisibility(View.GONE);
-        }
     }
 
     private void updateAdvancedVisibility() {
@@ -129,9 +120,6 @@ public class MainActivity extends AppCompatActivity {
         // Initialize views
         tvResult = findViewById(R.id.tvResult);
         tvExpression = findViewById(R.id.tvExpression);
-        tvVoiceRaw = findViewById(R.id.tvVoiceRaw);
-        tvVoiceConverted = findViewById(R.id.tvVoiceConverted);
-        voicePreview = findViewById(R.id.voicePreview);
         btnVoice = findViewById(R.id.btnVoice);
         btnToggleAdvanced = findViewById(R.id.btnToggleAdvanced);
         advancedContainer = findViewById(R.id.advancedContainer);
@@ -322,7 +310,6 @@ public class MainActivity extends AppCompatActivity {
                 public void onReadyForSpeech(Bundle params) {
                     isListening = true;
                     if (btnVoice != null) btnVoice.setEnabled(false);
-                    if (voicePreview != null) voicePreview.setVisibility(View.VISIBLE);
                 }
 
                 @Override
@@ -410,14 +397,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onPartialResults(Bundle partialResults) {
-                    ArrayList<String> partial = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                    if (partial == null || partial.isEmpty()) return;
-                    String partialText = partial.get(0).trim();
-                    if (!partialText.isEmpty()) {
-                        if (tvVoiceRaw != null) tvVoiceRaw.setText(partialText);
-                        String processedPreview = VoiceCommandProcessor.processVoiceCommand(partialText);
-                        if (tvVoiceConverted != null) tvVoiceConverted.setText(VoiceCommandProcessor.toHumanReadable(processedPreview));
-                    }
+                    // Preview text removed per UX request; no intermediate rendering needed.
                 }
 
                 @Override
@@ -646,16 +626,6 @@ public class MainActivity extends AppCompatActivity {
         if (tvResult != null) {
             tvResult.setText(state.getString(KEY_DISPLAY_RESULT, ""));
         }
-        if (tvVoiceRaw != null) {
-            tvVoiceRaw.setText(state.getString(KEY_VOICE_RAW, ""));
-        }
-        if (tvVoiceConverted != null) {
-            tvVoiceConverted.setText(state.getString(KEY_VOICE_CONVERTED, ""));
-        }
-        if (voicePreview != null) {
-            boolean previewVisible = state.getBoolean(KEY_VOICE_PREVIEW_VISIBLE, false);
-            voicePreview.setVisibility(previewVisible ? View.VISIBLE : View.GONE);
-        }
     }
 
     private void prepareForVoiceInput() {
@@ -665,15 +635,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (tvResult != null) {
             tvResult.setText("");
-        }
-        if (tvVoiceRaw != null) {
-            tvVoiceRaw.setText("");
-        }
-        if (tvVoiceConverted != null) {
-            tvVoiceConverted.setText("");
-        }
-        if (voicePreview != null) {
-            voicePreview.setVisibility(View.GONE);
         }
     }
 
@@ -917,14 +878,6 @@ public class MainActivity extends AppCompatActivity {
         if (tvResult != null) {
             outState.putString(KEY_DISPLAY_RESULT, tvResult.getText().toString());
         }
-        if (tvVoiceRaw != null) {
-            outState.putString(KEY_VOICE_RAW, tvVoiceRaw.getText().toString());
-        }
-        if (tvVoiceConverted != null) {
-            outState.putString(KEY_VOICE_CONVERTED, tvVoiceConverted.getText().toString());
-        }
-        outState.putBoolean(KEY_VOICE_PREVIEW_VISIBLE,
-                voicePreview != null && voicePreview.getVisibility() == View.VISIBLE);
         outState.putBoolean(KEY_ADVANCED_EXPANDED, advancedExpanded);
     }
 

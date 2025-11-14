@@ -17,47 +17,11 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:paddingEnd="@dimen/margin_small"
-    android:layout_marginTop="@dimen/margin_medium"
-    app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/margin_medium"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/guideline">
-
-        <LinearLayout
-            android:id="@+id/voicePreview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/margin_small"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tvVoiceRaw"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.8"
-                android:textSize="12sp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:textStyle="italic"
-                android:gravity="start"
-                android:maxLines="2"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/tvVoiceConverted"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?attr/colorOnSurface"
-                android:alpha="0.9"
-                android:textSize="13sp"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                android:gravity="start"
-                android:maxLines="2"
-                android:ellipsize="end" />
-        </LinearLayout>
 
         <androidx.cardview.widget.CardView
             android:id="@+id/displayCard"
