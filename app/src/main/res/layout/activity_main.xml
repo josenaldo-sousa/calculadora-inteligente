@@ -518,67 +518,73 @@
         app:adUnitId="ca-app-pub-3940256099942544/6300978111">
     </com.google.android.gms.ads.AdView>
 
+    <!-- Trigonometric functions row -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSin"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_row="6"
+        android:layout_column="0"
+        android:layout_columnWeight="1"
+        android:layout_rowWeight="1"
+        android:layout_margin="@dimen/margin_small"
+        android:text="@string/btn_sin"
+        android:textSize="@dimen/button_text_size"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:backgroundTint="@color/btn_function"
+        android:textColor="@color/btn_function_text"
+        app:layout_constraintTop_toBottomOf="@id/buttonsGrid"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnCos"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCos"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/margin_small"
+        android:text="@string/btn_cos"
+        android:textSize="@dimen/button_text_size"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:backgroundTint="@color/btn_function"
+        android:textColor="@color/btn_function_text"
+        app:layout_constraintTop_toBottomOf="@id/buttonsGrid"
+        app:layout_constraintStart_toEndOf="@id/btnSin"
+        app:layout_constraintEnd_toStartOf="@id/btnTan"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTan"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/margin_small"
+        android:text="@string/btn_tan"
+        android:textSize="@dimen/button_text_size"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:backgroundTint="@color/btn_function"
+        android:textColor="@color/btn_function_text"
+        app:layout_constraintTop_toBottomOf="@id/buttonsGrid"
+        app:layout_constraintStart_toEndOf="@id/btnCos"
+        app:layout_constraintEnd_toStartOf="@id/btnLog"
+        app:layout_constraintHorizontal_weight="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLog"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/margin_small"
+        android:text="@string/btn_log"
+        android:textSize="@dimen/button_text_size"
+        app:cornerRadius="@dimen/button_corner_radius"
+        android:backgroundTint="@color/btn_function"
+        android:textColor="@color/btn_function_text"
+        app:layout_constraintTop_toBottomOf="@id/buttonsGrid"
+        app:layout_constraintStart_toEndOf="@id/btnTan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSin"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_row="6"
-            android:layout_column="0"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/btn_sin"
-            android:textSize="@dimen/button_text_size"
-            app:cornerRadius="@dimen/button_corner_radius"
-            android:backgroundTint="@color/btn_function"
-            android:textColor="@color/btn_function_text" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCos"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_row="6"
-            android:layout_column="1"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/btn_cos"
-            android:textSize="@dimen/button_text_size"
-            app:cornerRadius="@dimen/button_corner_radius"
-            android:backgroundTint="@color/btn_function"
-            android:textColor="@color/btn_function_text" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnTan"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_row="6"
-            android:layout_column="2"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/btn_tan"
-            android:textSize="@dimen/button_text_size"
-            app:cornerRadius="@dimen/button_corner_radius"
-            android:backgroundTint="@color/btn_function"
-            android:textColor="@color/btn_function_text" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLog"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_row="6"
-            android:layout_column="3"
-            android:layout_columnWeight="1"
-            android:layout_rowWeight="1"
-            android:layout_margin="@dimen/margin_small"
-            android:text="@string/btn_log"
-            android:textSize="@dimen/button_text_size"
-            app:cornerRadius="@dimen/button_corner_radius"
-            android:backgroundTint="@color/btn_function"
-            android:textColor="@color/btn_function_text" />

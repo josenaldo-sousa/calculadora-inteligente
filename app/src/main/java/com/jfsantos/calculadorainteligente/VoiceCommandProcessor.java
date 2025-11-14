@@ -1,138 +1,166 @@
 package com.jfsantos.calculadorainteligente;
 
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class VoiceCommandProcessor {
     private static final Map<String, String> numberWords = new HashMap<>();
     private static final Map<String, String> operatorWords = new HashMap<>();
+    private static final Set<String> fillerWords = new HashSet<>(Arrays.asList(
+            "e", "da", "de", "do", "das", "dos", "com", "por", "a", "o", "os", "as", "ao", "aos", "uma", "um"
+    ));
 
     static {
-        // Numbers in Portuguese - Basic units
         numberWords.put("zero", "0");
         numberWords.put("um", "1");
         numberWords.put("uma", "1");
         numberWords.put("dois", "2");
         numberWords.put("duas", "2");
+    operatorWords.put("+", "+");
         numberWords.put("três", "3");
-        numberWords.put("tres", "3");  // Variação sem acento
+        numberWords.put("tres", "3");
         numberWords.put("quatro", "4");
         numberWords.put("cinco", "5");
         numberWords.put("seis", "6");
         numberWords.put("sete", "7");
         numberWords.put("oito", "8");
         numberWords.put("nove", "9");
-        
-        // Numbers 10-19
+    operatorWords.put("-", "-");
+    operatorWords.put("−", "-");
+
         numberWords.put("dez", "10");
         numberWords.put("onze", "11");
         numberWords.put("doze", "12");
         numberWords.put("treze", "13");
         numberWords.put("quatorze", "14");
+        numberWords.put("catorze", "14");
         numberWords.put("quinze", "15");
         numberWords.put("dezesseis", "16");
-        numberWords.put("dezasseis", "16");  // Variação portuguesa
+    operatorWords.put("×", "×");
+        numberWords.put("dezasseis", "16");
         numberWords.put("dezessete", "17");
-        numberWords.put("dezassete", "17");  // Variação portuguesa
+        numberWords.put("dezassete", "17");
         numberWords.put("dezoito", "18");
         numberWords.put("dezenove", "19");
-        numberWords.put("dezanove", "19");   // Variação portuguesa
-        
-        // Tens
+        numberWords.put("dezanove", "19");
+
         numberWords.put("vinte", "20");
         numberWords.put("trinta", "30");
         numberWords.put("quarenta", "40");
         numberWords.put("cinquenta", "50");
         numberWords.put("sessenta", "60");
         numberWords.put("setenta", "70");
+    operatorWords.put("/", "÷");
+    operatorWords.put("÷", "÷");
         numberWords.put("oitenta", "80");
         numberWords.put("noventa", "90");
-        
-        // Hundreds
+
         numberWords.put("cem", "100");
         numberWords.put("cento", "100");
         numberWords.put("duzentos", "200");
+        numberWords.put("duzentas", "200");
         numberWords.put("trezentos", "300");
+        numberWords.put("trezentas", "300");
         numberWords.put("quatrocentos", "400");
+        numberWords.put("quatrocentas", "400");
         numberWords.put("quinhentos", "500");
+        numberWords.put("quinhentas", "500");
         numberWords.put("seiscentos", "600");
+        numberWords.put("seiscentas", "600");
         numberWords.put("setecentos", "700");
+        numberWords.put("setecentas", "700");
         numberWords.put("oitocentos", "800");
+        numberWords.put("oitocentas", "800");
         numberWords.put("novecentos", "900");
-        
-        // Thousands and higher
+        numberWords.put("novecentas", "900");
+
         numberWords.put("mil", "1000");
+        numberWords.put("milhao", "1000000");
         numberWords.put("milhão", "1000000");
-        numberWords.put("milhao", "1000000");  // Sem acento
+        numberWords.put("bilhao", "1000000000");
         numberWords.put("bilhão", "1000000000");
-        numberWords.put("bilhao", "1000000000"); // Sem acento
         numberWords.put("pi", "3.1415926535");
         numberWords.put("euler", "2.7182818284");
-        
-        // Alternative pronunciations and common variations
-        numberWords.put("meia", "0.5");      // meia dúzia, etc
-        numberWords.put("meio", "0.5");       // meio
-        numberWords.put("metade", "0.5");     // metade
 
-        // Operators in Portuguese - Addition
+        numberWords.put("meia", "0.5");
+        numberWords.put("meio", "0.5");
+        numberWords.put("metade", "0.5");
+
         operatorWords.put("mais", "+");
         operatorWords.put("adição", "+");
+        operatorWords.put("adicao", "+");
         operatorWords.put("adicionar", "+");
         operatorWords.put("somar", "+");
         operatorWords.put("soma", "+");
-        operatorWords.put("plus", "+");     // English fallback
-        
-        // Subtraction
+        operatorWords.put("plus", "+");
+
         operatorWords.put("menos", "-");
         operatorWords.put("subtração", "-");
+        operatorWords.put("subtracao", "-");
         operatorWords.put("subtrair", "-");
         operatorWords.put("subtraia", "-");
-        operatorWords.put("subitrai", "-"); // Variação de pronúncia
-        operatorWords.put("minus", "-");    // English fallback
-        
-        // Multiplication
+        operatorWords.put("subitrai", "-");
+        operatorWords.put("minus", "-");
+
         operatorWords.put("vezes", "×");
         operatorWords.put("multiplicação", "×");
+        operatorWords.put("multiplicacao", "×");
         operatorWords.put("multiplicar", "×");
         operatorWords.put("multiplique", "×");
         operatorWords.put("multiplica", "×");
-        operatorWords.put("x", "×");        // letra X
-        operatorWords.put("*", "×");        // asterisco
-        operatorWords.put("times", "×");    // English fallback
-        
-        // Division
+        operatorWords.put("x", "×");
+        operatorWords.put("*", "×");
+        operatorWords.put("times", "×");
+
         operatorWords.put("dividir", "÷");
         operatorWords.put("divisão", "÷");
+        operatorWords.put("divisao", "÷");
         operatorWords.put("divida", "÷");
         operatorWords.put("dividido", "÷");
+        operatorWords.put("dividida", "÷");
         operatorWords.put("dividido por", "÷");
-        operatorWords.put("sobre", "÷");    // "10 sobre 2"
-        operatorWords.put("dividida", "÷"); // Variação feminina
-        operatorWords.put("divide", "÷");   // Variação de pronúncia
-        operatorWords.put("slash", "÷");    // English fallback
-        operatorWords.put("barra", "÷");    // Nome da tecla
-        
-        // Percentage
+        operatorWords.put("dividida por", "÷");
+        operatorWords.put("sobre", "÷");
+        operatorWords.put("divide", "÷");
+        operatorWords.put("slash", "÷");
+        operatorWords.put("barra", "÷");
+
         operatorWords.put("por cento", "%");
         operatorWords.put("porcento", "%");
         operatorWords.put("porcentagem", "%");
         operatorWords.put("percentual", "%");
-        operatorWords.put("percent", "%");  // English
+        operatorWords.put("percent", "%");
 
         operatorWords.put("abre parenteses", "(");
-        operatorWords.put("abre parenteses", "(");
         operatorWords.put("abre parentese", "(");
-        operatorWords.put("abre parentese", "(");
+        operatorWords.put("abre parênteses", "(");
+        operatorWords.put("abre parêntese", "(");
         operatorWords.put("fecha parenteses", ")");
         operatorWords.put("fecha parentese", ")");
+        operatorWords.put("fecha parênteses", ")");
+        operatorWords.put("fecha parêntese", ")");
 
         operatorWords.put("raiz quadrada", "√");
         operatorWords.put("raiz", "√");
+        operatorWords.put("radiciacao", "√");
+        operatorWords.put("radiciação", "√");
         operatorWords.put("seno", "sin");
+        operatorWords.put("sin", "sin");
         operatorWords.put("coseno", "cos");
         operatorWords.put("cosseno", "cos");
+        operatorWords.put("cos", "cos");
         operatorWords.put("tangente", "tan");
+        operatorWords.put("tan", "tan");
         operatorWords.put("logaritmo", "log");
         operatorWords.put("log", "log");
         operatorWords.put("log natural", "ln");
@@ -140,282 +168,198 @@ public class VoiceCommandProcessor {
         operatorWords.put("potencia", "^");
         operatorWords.put("potência", "^");
         operatorWords.put("elevado a", "^");
+        operatorWords.put("ao quadrado", "^2");
+        operatorWords.put("ao cubo", "^3");
         operatorWords.put("fatorial", "!");
-        
-        // NOTE: Decimal separators (virgula, ponto, etc.) are NOT in operatorWords
-        // They are handled specially within parseNumber() method
-        
-        // Special commands
+
         operatorWords.put("igual", "=");
         operatorWords.put("é igual", "=");
+        operatorWords.put("eh igual", "=");
         operatorWords.put("resultado", "=");
         operatorWords.put("calcular", "=");
-        operatorWords.put("calcula", "=");   // Variação
-        operatorWords.put("calculo", "=");   // Variação
-        operatorWords.put("enter", "=");     // English
-        operatorWords.put("equals", "=");    // English
+        operatorWords.put("calcula", "=");
+        operatorWords.put("calculo", "=");
+        operatorWords.put("enter", "=");
+        operatorWords.put("equals", "=");
         operatorWords.put("limpar", "C");
-        operatorWords.put("limpe", "C");     // Variação
-        operatorWords.put("limpa", "C");     // Variação
+        operatorWords.put("limpe", "C");
+        operatorWords.put("limpa", "C");
         operatorWords.put("resetar", "C");
-        operatorWords.put("reset", "C");     // English
+        operatorWords.put("reset", "C");
         operatorWords.put("zerar", "C");
+        operatorWords.put("zera", "C");
         operatorWords.put("apagar", "DEL");
-        operatorWords.put("apague", "DEL");  // Variação
-        operatorWords.put("apaga", "DEL");   // Variação
+        operatorWords.put("apague", "DEL");
+        operatorWords.put("apaga", "DEL");
         operatorWords.put("deletar", "DEL");
-        operatorWords.put("delete", "DEL");  // English
-        operatorWords.put("remove", "DEL");  // English
-        
-        // Adicionar variações normalizadas (sem acentos) para operadores com acentos
+        operatorWords.put("delete", "DEL");
+        operatorWords.put("remove", "DEL");
+
         addNormalizedOperators();
     }
-    
-    /**
-     * Adiciona versões normalizadas (sem acentos) de operadores que têm acentos
-     */
+
     private static void addNormalizedOperators() {
         Map<String, String> toAdd = new HashMap<>();
-        
         for (Map.Entry<String, String> entry : operatorWords.entrySet()) {
             String key = entry.getKey();
-            String value = entry.getValue();
-            
-            // Criar versão normalizada
             String normalized = key
-                .replace("à", "a").replace("á", "a").replace("â", "a").replace("ã", "a")
+                    .replace("à", "a").replace("á", "a").replace("â", "a").replace("ã", "a")
+                    .replace("è", "e").replace("é", "e").replace("ê", "e")
+                    .replace("ì", "i").replace("í", "i").replace("î", "i")
+                    .replace("ò", "o").replace("ó", "o").replace("ô", "o").replace("õ", "o")
+                    .replace("ù", "u").replace("ú", "u").replace("û", "u")
+                    .replace("ç", "c");
+            if (!normalized.equals(key) && !operatorWords.containsKey(normalized)) {
+                toAdd.put(normalized, entry.getValue());
+            }
+        }
+        operatorWords.putAll(toAdd);
+    }
+
+    public static ProcessResult processVoiceCommandDetailed(String voiceText) {
+        if (voiceText == null) {
+            return ProcessResult.empty();
+        }
+        String processed = voiceText.toLowerCase(Locale.ROOT).trim();
+        if (processed.isEmpty()) {
+            return ProcessResult.empty();
+        }
+        processed = normalizeText(processed);
+        return SpeechExpressionParser.parse(processed);
+    }
+
+    public static String processVoiceCommand(String voiceText) {
+        ProcessResult result = processVoiceCommandDetailed(voiceText);
+        if (result.getCommand() == CommandType.CLEAR) {
+            return "CLEAR";
+        }
+        if (result.getCommand() == CommandType.DELETE) {
+            return "DELETE";
+        }
+        if (result.getUiTokens().isEmpty()) {
+            return "";
+        }
+        String expression = result.getUiExpression();
+        if (result.shouldEvaluate()) {
+            return expression + " =";
+        }
+        return expression;
+    }
+
+    public static boolean isCalculationCommand(String expression) {
+        if (expression == null || expression.isEmpty()) {
+            return false;
+        }
+        return expression.contains("+") || expression.contains("-") ||
+                expression.contains("×") || expression.contains("÷") ||
+                expression.contains("=") || expression.contains("%") || expression.contains("√") ||
+                expression.contains("sin") || expression.contains("cos") || expression.contains("tan") ||
+                expression.contains("log") || expression.contains("ln") || expression.contains("^");
+    }
+
+    public static String cleanExpression(String expression) {
+        if (expression == null) {
+            return "";
+        }
+        expression = expression.replace("=", "").trim();
+        return expression.replaceAll("\\s+", " ");
+    }
+
+    public static boolean containsOperator(String text) {
+        if (text == null) return false;
+        return text.contains("+") || text.contains("−") || text.contains("-") ||
+                text.contains("×") || text.contains("÷") || text.contains("%") || text.contains("^") ||
+                text.contains("√") || text.contains("sin") || text.contains("cos") || text.contains("tan") ||
+                text.contains("log") || text.contains("ln");
+    }
+
+    public static String toHumanReadable(String expression) {
+        if (expression == null || expression.isEmpty()) {
+            return "Comando de voz não reconhecido";
+        }
+        return expression.replace("×", "*").replace("÷", "/");
+    }
+
+    static String normalizeText(String text) {
+        if (text == null) return "";
+        String normalized = text.replaceAll("\\s+", " ");
+        normalized = normalized.replace("à", "a").replace("á", "a").replace("â", "a").replace("ã", "a")
                 .replace("è", "e").replace("é", "e").replace("ê", "e")
                 .replace("ì", "i").replace("í", "i").replace("î", "i")
                 .replace("ò", "o").replace("ó", "o").replace("ô", "o").replace("õ", "o")
                 .replace("ù", "u").replace("ú", "u").replace("û", "u")
                 .replace("ç", "c");
-            
-            // Se for diferente, adicionar
-            if (!normalized.equals(key) && !operatorWords.containsKey(normalized)) {
-                toAdd.put(normalized, value);
-            }
+        return normalized.trim();
+    }
+
+    static class ParseResult {
+        final String uiString;
+        final String mathString;
+        final int nextIndex;
+
+        ParseResult(String uiString, String mathString, int nextIndex) {
+            this.uiString = uiString;
+            this.mathString = mathString;
+            this.nextIndex = nextIndex;
         }
-        
-        // Adicionar todas as variações normalizadas
-        operatorWords.putAll(toAdd);
     }
 
-    public static String processVoiceCommand(String voiceText) {
-        if (voiceText == null || voiceText.isEmpty()) {
-            return "";
-        }
-
-        String processed = voiceText.toLowerCase().trim();
-        
-        // Normalizar variações comuns (acentos, etc)
-        processed = normalizeText(processed);
-        
-        // Handle special commands
-        if (processed.contains("limpar") || processed.contains("resetar") || processed.contains("zerar") || 
-            processed.contains("reset") || processed.contains("clear")) {
-            return "CLEAR";
-        }
-        
-        if (processed.contains("apagar") || processed.contains("deletar") || processed.contains("delete") || 
-            processed.contains("remove")) {
-            return "DELETE";
-        }
-
-        // Convert to mathematical expression
-        String expression = convertToExpression(processed);
-        
-        return expression;
-    }
-    
-    /**
-     * Normaliza texto removendo/substituindo acentos comuns e variações de pronúncia
-     */
-    private static String normalizeText(String text) {
-        if (text == null) return "";
-        
-        // Remover espaços extras
-        text = text.replaceAll("\\s+", " ");
-        
-        // Substituir variações comuns de acentos
-        text = text.replace("à", "a").replace("á", "a").replace("â", "a").replace("ã", "a")
-                   .replace("è", "e").replace("é", "e").replace("ê", "e")
-                   .replace("ì", "i").replace("í", "i").replace("î", "i")
-                   .replace("ò", "o").replace("ó", "o").replace("ô", "o").replace("õ", "o")
-                   .replace("ù", "u").replace("ú", "u").replace("û", "u")
-                   .replace("ç", "c");
-        
-        return text;
-    }
-
-    private static String convertToExpression(String text) {
-        StringBuilder result = new StringBuilder();
-        String[] words = text.split("\\s+");
-
-        int i = 0;
-        while (i < words.length) {
-            String word = words[i].toLowerCase();
-            String wordNormalized = normalizeText(word);
-
-            // Skip filler words
-            if (wordNormalized.equals("e") || wordNormalized.equals("de") || wordNormalized.isEmpty()) { 
-                i++; 
-                continue; 
-            }
-
-            // Try compound operator (two-word) first
-            if (i + 1 < words.length) {
-                String compound = (wordNormalized + " " + normalizeText(words[i + 1].toLowerCase()));
-                if (operatorWords.containsKey(compound)) {
-                    String operator = operatorWords.get(compound);
-                    if (operator.equals("=")) return result.toString().trim() + " =";
-                    if (operator.equals("C")) return "CLEAR";
-                    if (operator.equals("DEL")) return "DELETE";
-                    result.append(" ").append(operator).append(" ");
-                    i += 2;
-                    continue;
-                }
-            }
-
-            // Number parsing (including composed numbers and decimals)
-            if (isNumberWord(wordNormalized) || isDecimalMarker(wordNormalized) || word.matches("\\d+")) {
-                ParseResult pr = parseNumber(words, i);
-                if (pr != null) {
-                    if (result.length() > 0 && !result.toString().endsWith(" ")) {
-                        result.append(" ");
-                    }
-                    result.append(pr.numberString);
-                    i = pr.nextIndex;
-                    // After parsing a number, check if the next word(s) is an operator
-                    if (i < words.length) {
-                        // First try compound operator (e.g., "dividido por")
-                        if (i + 1 < words.length) {
-                            String nextWordNorm = normalizeText(words[i].toLowerCase());
-                            String nextNextWordNorm = normalizeText(words[i + 1].toLowerCase());
-                            String compound = nextWordNorm + " " + nextNextWordNorm;
-                            if (operatorWords.containsKey(compound)) {
-                                String operator = operatorWords.get(compound);
-                                if (operator.equals("=")) {
-                                    return result.toString().trim() + " =";
-                                }
-                                result.append(" ").append(operator).append(" ");
-                                i += 2;
-                                continue;
-                            }
-                        }
-                        // Then try single-word operator
-                        String nextWordNormalized = normalizeText(words[i].toLowerCase());
-                        if (operatorWords.containsKey(nextWordNormalized)) {
-                            String operator = operatorWords.get(nextWordNormalized);
-                            if (operator.equals("=")) {
-                                return result.toString().trim() + " =";
-                            }
-                            result.append(" ").append(operator).append(" ");
-                            i++;
-                        }
-                    }
-                    continue;
-                }
-            }
-
-            // Single-word operators
-            if (operatorWords.containsKey(wordNormalized)) {
-                String operator = operatorWords.get(wordNormalized);
-                if (operator.equals("=")) return result.toString().trim() + " =";
-                if (operator.equals("C")) return "CLEAR";
-                if (operator.equals("DEL")) return "DELETE";
-                result.append(" ").append(operator).append(" ");
-                i++;
-                continue;
-            }
-
-            // Direct digits
-            if (word.matches("\\d+")) {
-                if (result.length() > 0 && !result.toString().endsWith(" ")) {
-                    result.append(" ");
-                }
-                result.append(word);
-                i++;
-                continue;
-            }
-
-            // Unrecognized word -> skip silently
-            i++;
-        }
-
-        return result.toString().trim();
-    }
-
-    // Helper to check if a word maps to a number word
-    private static boolean isNumberWord(String w) {
-        if (w == null) return false;
-        String normalized = normalizeText(w);
-        return numberWords.containsKey(normalized);
-    }
-
-    // ParseResult holds parsed number string and next index
-    private static class ParseResult {
-        String numberString;
-        int nextIndex;
-        ParseResult(String s, int idx) { numberString = s; nextIndex = idx; }
-    }
-
-
-    // Parse a sequence of number words starting at index i. Supports decimals with 'virgula', 'ponto', 'vírgula', 'decimal'.
-    // Portuguese number composition rules:
-    // - "vinte e um" = 20 + 1 = 21
-    // - "cento e trinta" = 100 + 30 = 130
-    // - "dois mil" = 2 * 1000 = 2000
-    // - "dois mil trezentos e quarenta e cinco" = 2 * 1000 + 300 + 40 + 5 = 2345
-    private static ParseResult parseNumber(String[] words, int i) {
+    static ParseResult parseNumber(String[] words, int i) {
         int idx = i;
         BigDecimal total = BigDecimal.ZERO;
         BigDecimal current = BigDecimal.ZERO;
         boolean foundAny = false;
 
-        boolean startsWithDecimal = isDecimalMarker(normalizeText(words[idx].toLowerCase()));
+        if (idx >= words.length) {
+            return null;
+        }
+
+        boolean startsWithDecimal = isDecimalMarker(words[idx]);
 
         if (!startsWithDecimal) {
             while (idx < words.length) {
-                String w = words[idx].toLowerCase();
+                String w = words[idx];
                 String wNormalized = normalizeText(w);
-                
-                if (wNormalized.equals("e") || wNormalized.equals("de")) {
-                    idx++;
-                    continue;
-                }
-                
                 if (isDecimalMarker(wNormalized)) {
-                    break; 
+                    break;
                 }
-                
-                if (!numberWords.containsKey(wNormalized)) {
-                    break; 
-                }
-                
-                foundAny = true;
-                String numStr = numberWords.get(wNormalized);
-                BigDecimal val = new BigDecimal(numStr);
 
-                if (val.scale() > 0) {
-                    current = current.add(val);
+                if (numberWords.containsKey(wNormalized)) {
+                    foundAny = true;
+                    BigDecimal val = new BigDecimal(numberWords.get(wNormalized));
+
+                    if (val.scale() > 0) {
+                        current = current.add(val);
+                        idx++;
+                        continue;
+                    }
+
+                    int intVal = val.intValue();
+                    if (intVal >= 1000) {
+                        BigDecimal base = total.add(current);
+                        if (base.compareTo(BigDecimal.ZERO) == 0) {
+                            base = BigDecimal.ONE;
+                        }
+                        total = base.multiply(val);
+                        current = BigDecimal.ZERO;
+                    } else {
+                        current = current.add(val);
+                    }
                     idx++;
                     continue;
                 }
 
-                int v = val.intValue();
-
-                if (v >= 1000) {
-                    BigDecimal base = total.add(current);
-                    if (base.compareTo(BigDecimal.ZERO) == 0) {
-                        base = BigDecimal.ONE;
+                if (fillerWords.contains(wNormalized)) {
+                    if (startsWithOperator(words, idx)) {
+                        break;
                     }
-                    total = base.multiply(val);
-                    current = BigDecimal.ZERO;
-                } else {
-                    current = current.add(val);
+                    idx++;
+                    continue;
                 }
-                
-                idx++;
+
+                if (!numberWords.containsKey(wNormalized)) {
+                    break;
+                }
             }
             total = total.add(current);
         }
@@ -424,114 +368,557 @@ public class VoiceCommandProcessor {
             return null;
         }
 
-        if (idx < words.length && isDecimalMarker(normalizeText(words[idx].toLowerCase()))) {
-            idx++; 
-            foundAny = true;
-            
-            StringBuilder fracBuilder = new StringBuilder();
-            
+        if (idx < words.length && isDecimalMarker(words[idx])) {
+            idx++;
+            StringBuilder fractional = new StringBuilder();
             while (idx < words.length) {
-                String w = words[idx].toLowerCase();
-                String wNormalized = normalizeText(w);
-                
-                if (wNormalized.equals("e") || wNormalized.equals("de")) { 
-                    idx++; 
-                    continue; 
-                }
-                
-                if (isDecimalMarker(wNormalized) || operatorWords.containsKey(wNormalized)) {
+                String w = words[idx];
+                String normalized = normalizeText(w);
+                if (isDecimalMarker(normalized) || operatorWords.containsKey(normalized)) {
                     break;
                 }
-                
-                if (numberWords.containsKey(wNormalized)) {
-                    String numStr = numberWords.get(wNormalized);
-                    BigDecimal val = new BigDecimal(numStr);
-                    
-                    if (val.scale() > 0) break;
-
-                    int v = val.intValue();
-                    if (v >= 0 && v <= 9) {
-                        fracBuilder.append(v);
-                    } else {
-                        fracBuilder.append(val.toPlainString());
+                if (numberWords.containsKey(normalized)) {
+                    BigDecimal val = new BigDecimal(numberWords.get(normalized));
+                    if (val.scale() > 0) {
+                        break;
+                    }
+                    fractional.append(val.toPlainString().replace(".0", ""));
+                    idx++;
+                    continue;
+                } else if (normalized.matches("\\d+")) {
+                    fractional.append(normalized);
+                    idx++;
+                    continue;
+                }
+                if (fillerWords.contains(normalized)) {
+                    if (startsWithOperator(words, idx)) {
+                        break;
                     }
                     idx++;
-                } else if (w.matches("\\d+")) {
-                    fracBuilder.append(w);
-                    idx++;
+                    continue;
                 } else {
                     break;
                 }
             }
-            
-            String fracString = fracBuilder.toString();
-            String wholeString = total.toPlainString().replace('.', ',');
+            String whole = total.toPlainString();
+            String math = fractional.length() == 0 ? whole : whole + "." + fractional;
+            String ui = fractional.length() == 0 ? whole.replace('.', ',') : (whole.replace('.', ',') + "," + fractional);
+            return new ParseResult(ui, math, idx);
+        }
 
-            if (fracString.isEmpty()) {
-                return new ParseResult(wholeString, idx);
+        if (!foundAny && startsWithDecimal) {
+            return null;
+        }
+
+        String math = total.toPlainString();
+        String ui = math.replace('.', ',');
+        return new ParseResult(ui, math, idx);
+    }
+
+    private static boolean startsWithOperator(String[] words, int index) {
+        if (words == null || index < 0 || index >= words.length) {
+            return false;
+        }
+        int max = Math.min(words.length, index + 3);
+        for (int end = max; end > index; end--) {
+            StringBuilder candidate = new StringBuilder();
+            for (int i = index; i < end; i++) {
+                if (i > index) {
+                    candidate.append(' ');
+                }
+                candidate.append(words[i]);
+            }
+            if (operatorWords.containsKey(candidate.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isDecimalMarker(String word) {
+        if (word == null) return false;
+        String normalized = normalizeText(word);
+        return normalized.equals("virgula") || normalized.equals("vírgula") || normalized.equals("ponto") ||
+                normalized.equals("decimal") || normalized.equals("dot") || normalized.equals("comma");
+    }
+
+    public enum CommandType { NONE, CLEAR, DELETE }
+
+    public static final class ProcessResult {
+        private static final ProcessResult EMPTY = new ProcessResult(CommandType.NONE, false, Collections.emptyList(), "");
+
+        private final CommandType command;
+        private final boolean shouldEvaluate;
+        private final List<String> uiTokens;
+        private final String mathExpression;
+
+        ProcessResult(CommandType command, boolean shouldEvaluate, List<String> uiTokens, String mathExpression) {
+            this.command = command;
+            this.shouldEvaluate = shouldEvaluate;
+            this.uiTokens = uiTokens;
+            this.mathExpression = mathExpression;
+        }
+
+        static ProcessResult empty() {
+            return EMPTY;
+        }
+
+        public CommandType getCommand() {
+            return command;
+        }
+
+        public boolean shouldEvaluate() {
+            return shouldEvaluate;
+        }
+
+        public List<String> getUiTokens() {
+            return uiTokens;
+        }
+
+        public String getUiExpression() {
+            return String.join(" ", uiTokens);
+        }
+
+        public String getMathExpression() {
+            return mathExpression;
+        }
+    }
+
+    private enum TokenType {
+        NONE,
+        NUMBER,
+        OPERATOR,
+        FUNCTION,
+        PAREN_OPEN,
+        PAREN_CLOSE,
+        PERCENT,
+        FACTORIAL,
+        CONSTANT
+    }
+
+    private enum FunctionType {
+        SQRT,
+        SIN,
+        COS,
+        TAN,
+        LOG,
+        LN
+    }
+
+    private static final class BuildContext {
+        final List<String> mathTokens = new ArrayList<>();
+        final List<TokenType> mathTokenTypes = new ArrayList<>();
+        final List<String> uiTokens = new ArrayList<>();
+        final Deque<FunctionType> functionStack = new ArrayDeque<>();
+        int manualParentheses = 0;
+        TokenType prevType = TokenType.NONE;
+
+        void addNumber(String ui, String math) {
+            maybeInsertImplicitMultiplication();
+            mathTokens.add(math);
+            mathTokenTypes.add(TokenType.NUMBER);
+            uiTokens.add(ui);
+            prevType = TokenType.NUMBER;
+        }
+
+        void addOperator(String math, String ui) {
+            if (mathTokens.isEmpty()) {
+                if ("-".equals(math)) {
+                    addNumber("0", "0");
+                } else {
+                    return;
+                }
+            }
+            if (!mathTokens.isEmpty() && lastMathTokenType() == TokenType.OPERATOR) {
+                mathTokens.remove(mathTokens.size() - 1);
+                mathTokenTypes.remove(mathTokenTypes.size() - 1);
+                if (!uiTokens.isEmpty()) {
+                    uiTokens.remove(uiTokens.size() - 1);
+                }
+            }
+            mathTokens.add(math);
+            mathTokenTypes.add(TokenType.OPERATOR);
+            uiTokens.add(ui);
+            prevType = TokenType.OPERATOR;
+        }
+
+        void addPowerOperator(String powerLiteral) {
+            if ("^2".equals(powerLiteral) || "^3".equals(powerLiteral)) {
+                addOperator("^", "^");
+                mathTokens.add(powerLiteral.substring(1));
+                mathTokenTypes.add(TokenType.NUMBER);
+                uiTokens.add(powerLiteral.substring(1));
+                prevType = TokenType.NUMBER;
             } else {
-                return new ParseResult(wholeString + "," + fracString, idx);
+                addOperator("^", "^");
             }
         }
 
-        if (!foundAny) {
-            return null;
+        void addPercent() {
+            if (mathTokens.isEmpty()) {
+                return;
+            }
+            if (prevType != TokenType.NUMBER && prevType != TokenType.PAREN_CLOSE && prevType != TokenType.CONSTANT) {
+                return;
+            }
+            mathTokens.add("*0.01");
+            mathTokenTypes.add(TokenType.PERCENT);
+            uiTokens.add("%");
+            prevType = TokenType.PERCENT;
         }
-        return new ParseResult(total.toPlainString().replace('.', ','), idx);
-    }
-    
-    /**
-     * Verifica se a palavra é um marcador de decimal
-     */
-    private static boolean isDecimalMarker(String word) {
-        if (word == null) return false;
-        return word.equals("virgula") || word.equals("ponto") || word.equals("decimal") || 
-               word.equals("dot") || word.equals("comma") || word.equals("com");
-    }
 
-    public static boolean isCalculationCommand(String expression) {
-        if (expression == null || expression.isEmpty()) {
-            return false;
+        void addFactorial() {
+            if (mathTokens.isEmpty()) {
+                return;
+            }
+            mathTokens.add("!");
+            mathTokenTypes.add(TokenType.FACTORIAL);
+            uiTokens.add("!");
+            prevType = TokenType.FACTORIAL;
         }
-        
-        // Check if it contains operators or equals sign
-        return expression.contains("+") || expression.contains("-") || 
-               expression.contains("×") || expression.contains("÷") ||
-               expression.contains("=") || expression.contains("%");
-    }
 
-    public static String cleanExpression(String expression) {
-        if (expression == null) {
+        void addFunction(FunctionType functionType) {
+            maybeInsertImplicitMultiplication();
+            mathTokens.add(toMathFunction(functionType));
+            mathTokenTypes.add(TokenType.FUNCTION);
+            uiTokens.add(toUiFunction(functionType));
+            functionStack.push(functionType);
+            prevType = TokenType.FUNCTION;
+        }
+
+        void addOpenParenthesis() {
+            maybeInsertImplicitMultiplication();
+            mathTokens.add("(");
+            mathTokenTypes.add(TokenType.PAREN_OPEN);
+            uiTokens.add("(");
+            manualParentheses++;
+            prevType = TokenType.PAREN_OPEN;
+        }
+
+        void addCloseParenthesis() {
+            if (manualParentheses > 0) {
+                mathTokens.add(")");
+                mathTokenTypes.add(TokenType.PAREN_CLOSE);
+                uiTokens.add(")");
+                manualParentheses--;
+                prevType = TokenType.PAREN_CLOSE;
+                return;
+            }
+            closeFunction(false);
+        }
+
+        void closeFunction(boolean forceUiParenthesis) {
+            if (functionStack.isEmpty()) {
+                return;
+            }
+            functionStack.pop();
+            mathTokens.add(")");
+            mathTokenTypes.add(TokenType.PAREN_CLOSE);
+            if (forceUiParenthesis) {
+                uiTokens.add(")");
+            }
+            prevType = TokenType.PAREN_CLOSE;
+        }
+
+        void closeAll() {
+            while (manualParentheses > 0) {
+                addCloseParenthesis();
+            }
+            while (!functionStack.isEmpty()) {
+                closeFunction(false);
+            }
+            trimTrailingOperator();
+        }
+
+        void trimTrailingOperator() {
+            while (!mathTokens.isEmpty()) {
+                TokenType lastType = lastMathTokenType();
+                if (lastType == TokenType.OPERATOR) {
+                    mathTokens.remove(mathTokens.size() - 1);
+                    mathTokenTypes.remove(mathTokenTypes.size() - 1);
+                    if (!uiTokens.isEmpty()) {
+                        uiTokens.remove(uiTokens.size() - 1);
+                    }
+                    prevType = mathTokens.isEmpty() ? TokenType.NONE : lastMathTokenType();
+                } else if (lastType == TokenType.FUNCTION) {
+                    closeFunction(false);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        TokenType lastMathTokenType() {
+            if (mathTokenTypes.isEmpty()) {
+                return TokenType.NONE;
+            }
+            return mathTokenTypes.get(mathTokenTypes.size() - 1);
+        }
+
+        private void maybeInsertImplicitMultiplication() {
+            if (mathTokens.isEmpty()) {
+                return;
+            }
+            TokenType last = lastMathTokenType();
+            if (last == TokenType.NUMBER || last == TokenType.PAREN_CLOSE || last == TokenType.PERCENT ||
+                    last == TokenType.FACTORIAL || last == TokenType.CONSTANT) {
+                mathTokens.add("*");
+                mathTokenTypes.add(TokenType.OPERATOR);
+                uiTokens.add("×");
+                prevType = TokenType.OPERATOR;
+            }
+        }
+
+        private String toMathFunction(FunctionType functionType) {
+            switch (functionType) {
+                case SQRT:
+                    return "sqrt(";
+                case SIN:
+                    return "sin(";
+                case COS:
+                    return "cos(";
+                case TAN:
+                    return "tan(";
+                case LOG:
+                    return "log10(";
+                case LN:
+                    return "ln(";
+            }
             return "";
         }
-        
-        // Remove equals sign if present
-        expression = expression.replace("=", "").trim();
-        
-        // Clean up multiple spaces
-        expression = expression.replaceAll("\\s+", " ");
-        
-        return expression;
-    }
 
-    public static boolean containsOperator(String text) {
-        return text.contains("+") || text.contains("−") || 
-               text.contains("×") || text.contains("÷") || text.contains("%");
-    }
-
-    /**
-     * Convert a processed expression into a human-friendly form suitable for display.
-     * Examples:
-     *  - "40 − 2" -> "40 − 2"
-     *  - "CLEAR" -> "Limpar"
-     *  - "123.45" -> "123.45"
-     */
-    public static String toHumanReadable(String expression) {
-        if (expression == null || expression.isEmpty()) {
-            return "Comando de voz não reconhecido";
+        private String toUiFunction(FunctionType functionType) {
+            switch (functionType) {
+                case SQRT:
+                    return "√";
+                case SIN:
+                    return "sin";
+                case COS:
+                    return "cos";
+                case TAN:
+                    return "tan";
+                case LOG:
+                    return "log";
+                case LN:
+                    return "ln";
+            }
+            return "";
         }
-        return expression
-                .replace("×", "*")
-                .replace("÷", "/");
+
+        String buildMathExpression() {
+            StringBuilder builder = new StringBuilder();
+            for (String token : mathTokens) {
+                builder.append(token);
+            }
+            return builder.toString();
+        }
+    }
+
+    private static final class OperatorMatch {
+        final String phrase;
+        final int length;
+
+        OperatorMatch(String phrase, int length) {
+            this.phrase = phrase;
+            this.length = length;
+        }
+    }
+
+    private static final class SpeechExpressionParser {
+        private static final int MAX_OPERATOR_WORDS = 3;
+
+        private SpeechExpressionParser() {
+        }
+
+        static ProcessResult parse(String normalizedText) {
+            if (normalizedText == null || normalizedText.isEmpty()) {
+                return ProcessResult.empty();
+            }
+
+            String[] rawWords = normalizedText.split(" ");
+            List<String> words = new ArrayList<>();
+            for (String word : rawWords) {
+                if (word == null) continue;
+                String trimmed = word.trim();
+                if (!trimmed.isEmpty()) {
+                    words.add(trimmed);
+                }
+            }
+
+            if (words.isEmpty()) {
+                return ProcessResult.empty();
+            }
+
+            BuildContext ctx = new BuildContext();
+            CommandType command = CommandType.NONE;
+            boolean shouldEvaluate = false;
+
+            String[] wordArray = words.toArray(String[]::new);
+            int i = 0;
+            while (i < words.size()) {
+                String word = words.get(i);
+                if (word.isEmpty()) {
+                    i++;
+                    continue;
+                }
+
+                OperatorMatch match = matchOperator(words, i);
+                if (match != null) {
+                    String operator = operatorWords.get(match.phrase);
+                    if (operator == null) {
+                        i += match.length;
+                        continue;
+                    }
+                    if ("C".equals(operator)) {
+                        command = CommandType.CLEAR;
+                        ctx = new BuildContext();
+                        break;
+                    }
+                    if ("DEL".equals(operator)) {
+                        command = CommandType.DELETE;
+                        ctx = new BuildContext();
+                        break;
+                    }
+                    if ("=".equals(operator)) {
+                        shouldEvaluate = true;
+                        i += match.length;
+                        continue;
+                    }
+                    if ("+".equals(operator)) {
+                        ctx.addOperator("+", "+");
+                        i += match.length;
+                        continue;
+                    }
+                    if ("-".equals(operator)) {
+                        ctx.addOperator("-", "−");
+                        i += match.length;
+                        continue;
+                    }
+                    if ("×".equals(operator)) {
+                        ctx.addOperator("*", "×");
+                        i += match.length;
+                        continue;
+                    }
+                    if ("÷".equals(operator)) {
+                        ctx.addOperator("/", "÷");
+                        i += match.length;
+                        continue;
+                    }
+                    if ("%".equals(operator)) {
+                        ctx.addPercent();
+                        i += match.length;
+                        continue;
+                    }
+                    if ("!".equals(operator)) {
+                        ctx.addFactorial();
+                        i += match.length;
+                        continue;
+                    }
+                    if ("^".equals(operator)) {
+                        ctx.addOperator("^", "^");
+                        i += match.length;
+                        continue;
+                    }
+                    if (operator.startsWith("^")) {
+                        ctx.addPowerOperator(operator);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("(".equals(operator)) {
+                        ctx.addOpenParenthesis();
+                        i += match.length;
+                        continue;
+                    }
+                    if (")".equals(operator)) {
+                        ctx.addCloseParenthesis();
+                        i += match.length;
+                        continue;
+                    }
+                    if ("√".equals(operator)) {
+                        ctx.addFunction(FunctionType.SQRT);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("sin".equals(operator)) {
+                        ctx.addFunction(FunctionType.SIN);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("cos".equals(operator)) {
+                        ctx.addFunction(FunctionType.COS);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("tan".equals(operator)) {
+                        ctx.addFunction(FunctionType.TAN);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("log".equals(operator)) {
+                        ctx.addFunction(FunctionType.LOG);
+                        i += match.length;
+                        continue;
+                    }
+                    if ("ln".equals(operator)) {
+                        ctx.addFunction(FunctionType.LN);
+                        i += match.length;
+                        continue;
+                    }
+                    i += match.length;
+                    continue;
+                }
+                String normalized = normalizeText(word);
+                ParseResult number = parseNumber(wordArray, i);
+                if (number != null) {
+                    ctx.addNumber(number.uiString, number.mathString);
+                    i = number.nextIndex;
+                    continue;
+                }
+
+                if (fillerWords.contains(normalized)) {
+                    i++;
+                    continue;
+                }
+
+                if (normalized.matches("\\d+([,.]\\d+)?")) {
+                    String ui = normalized.replace('.', ',');
+                    String math = normalized.replace(',', '.');
+                    ctx.addNumber(ui, math);
+                    i++;
+                    continue;
+                }
+
+                i++;
+            }
+
+            ctx.closeAll();
+            List<String> uiTokens = Collections.unmodifiableList(new ArrayList<>(ctx.uiTokens));
+            String mathExpression = ctx.buildMathExpression();
+            if (command != CommandType.NONE) {
+                return new ProcessResult(command, false, Collections.emptyList(), "");
+            }
+            if (uiTokens.isEmpty() || mathExpression.isEmpty()) {
+                return ProcessResult.empty();
+            }
+            return new ProcessResult(command, shouldEvaluate, uiTokens, mathExpression);
+        }
+
+        private static OperatorMatch matchOperator(List<String> words, int index) {
+            int max = Math.min(words.size(), index + MAX_OPERATOR_WORDS);
+            for (int end = max; end > index; end--) {
+                StringBuilder candidate = new StringBuilder();
+                for (int i = index; i < end; i++) {
+                    if (i > index) {
+                        candidate.append(' ');
+                    }
+                    candidate.append(words.get(i));
+                }
+                String phrase = candidate.toString();
+                if (operatorWords.containsKey(phrase)) {
+                    return new OperatorMatch(phrase, end - index);
+                }
+            }
+            return null;
+        }
     }
 }

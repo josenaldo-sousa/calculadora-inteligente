@@ -390,48 +390,56 @@ public class MainActivity extends AppCompatActivity {
 
         // Process the expression with better handling of numbers with commas
         String[] parts = processed.split("\\s+");
-        for (String p : parts) {
-            if (p.isEmpty()) continue;
-            
-            // Match numbers with optional decimal part (using comma as separator)
-            if (p.matches("\\d+(,\\d+)?")) {
-                for (char digit : p.toCharArray()) {
+        for (int idx = 0; idx < parts.length; idx++) {
+            String token = parts[idx];
+            if (token == null || token.isEmpty()) {
+                continue;
+            }
+
+            if (token.matches("\\d+(,\\d+)?")) {
+                for (char digit : token.toCharArray()) {
                     if (digit == ',') {
                         calculator.appendDecimal();
                     } else {
                         calculator.appendDigit(String.valueOf(digit));
                     }
                 }
-            } 
-            // Match operators and parentheses
-            else if (p.matches("[+−×÷%()]")) {
-                if (p.equals("(")) {
+                continue;
+            }
+
+            switch (token) {
+                case "(":
                     calculator.appendParenthesis("(");
-                } else if (p.equals(")")) {
+                    continue;
+                case ")":
                     calculator.appendParenthesis(")");
-                } else {
-                    calculator.appendOperator(p);
-                }
+                    continue;
+                case "+":
+                case "−":
+                case "×":
+                case "÷":
+                case "%":
+                case "^":
+                    calculator.appendOperator(token);
+                    continue;
+                default:
+                    break;
             }
-            else if (p.equals("√") || p.equals("sin") || p.equals("cos") || p.equals("tan") || p.equals("log") || p.equals("ln")) {
-                String in = "";
-                int nextIndex = -1;
-                String[] partsLocal = parts;
-                for (int k = 0; k < partsLocal.length; k++) {
-                    if (partsLocal[k].equals(p)) {
-                        nextIndex = k + 1;
-                        break;
-                    }
+
+            if (token.equals("√") || token.equals("sin") || token.equals("cos") || token.equals("tan") || token.equals("log") || token.equals("ln")) {
+                String argument = "";
+                if (idx + 1 < parts.length) {
+                    argument = parts[idx + 1];
+                    idx++;
                 }
-                if (nextIndex >= 0 && nextIndex < parts.length) {
-                    in = parts[nextIndex];
+                if (argument != null && !argument.isEmpty()) {
+                    String functionName = token.equals("√") ? "√" : token;
+                    calculator.appendFunction(functionName, argument);
                 }
-                if (!in.isEmpty()) {
-                    String fname = p.equals("√") ? "√" : p;
-                    calculator.appendFunction(fname, in);
-                }
+                continue;
             }
-            else if (p.equals("!")) {
+
+            if (token.equals("!")) {
                 calculator.appendFactorial();
             }
         }
