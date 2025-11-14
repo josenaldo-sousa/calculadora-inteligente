@@ -172,6 +172,18 @@ public class VoiceRecognitionTest {
     }
 
     @Test
+    public void testFactorialEvaluation() {
+        String result = NativeVoiceRecognizer.calculateWithMXParser("fatorial de cinco");
+        assertEquals("120", result);
+    }
+
+    @Test
+    public void testFactorialThroughCalculator() {
+        String result = evaluateWithCalculator("cinco fatorial");
+        assertEquals("120", result);
+    }
+
+    @Test
     public void testNormalization() {
         String input = "calcule cinco mais três";
         String normalized = NativeVoiceRecognizer.normalizeMathPhrase(input);

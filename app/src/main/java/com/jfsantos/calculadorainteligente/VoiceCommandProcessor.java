@@ -577,14 +577,15 @@ public class VoiceCommandProcessor {
             prevType = TokenType.PERCENT;
         }
 
-        void addFactorial() {
+        boolean addFactorial() {
             if (mathTokens.isEmpty()) {
-                return;
+                return false;
             }
             mathTokens.add("!");
             mathTokenTypes.add(TokenType.FACTORIAL);
             uiTokens.add("!");
             prevType = TokenType.FACTORIAL;
+            return true;
         }
 
         void addFunction(FunctionType functionType) {
@@ -820,7 +821,17 @@ public class VoiceCommandProcessor {
                         continue;
                     }
                     if ("!".equals(operator)) {
-                        ctx.addFactorial();
+                        boolean applied = ctx.addFactorial();
+                        if (!applied) {
+                            int nextIndex = i + match.length;
+                            ParseResult factorialNumber = parseNumber(wordArray, nextIndex);
+                            if (factorialNumber != null) {
+                                ctx.addNumber(factorialNumber.uiString, factorialNumber.mathString);
+                                ctx.addFactorial();
+                                i = factorialNumber.nextIndex;
+                                continue;
+                            }
+                        }
                         i += match.length;
                         continue;
                     }
