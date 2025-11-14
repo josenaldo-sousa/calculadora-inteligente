@@ -109,6 +109,54 @@ public class VoiceRecognitionTest {
     }
 
     @Test
+    public void testSingleHundredWord() {
+        String input = "cem";
+        String result = NativeVoiceRecognizer.calculateWithMXParser(input);
+        assertEquals("100", result);
+    }
+
+    @Test
+    public void testSingleThousandWord() {
+        String input = "mil";
+        String result = NativeVoiceRecognizer.calculateWithMXParser(input);
+        assertEquals("1000", result);
+    }
+
+    @Test
+    public void testThousandDivision() {
+        String input = "mil dividido por dois";
+        String result = NativeVoiceRecognizer.calculateWithMXParser(input);
+        assertEquals("500", result);
+    }
+
+    @Test
+    public void testThousandDivisionThroughCalculator() {
+        Calculator calculator = new Calculator();
+        String processed = VoiceCommandProcessor.processVoiceCommand("mil dividido por dois");
+    assertEquals("1000 ÷ 2", processed);
+        String[] tokens = processed.split("\\s+");
+        for (String token : tokens) {
+            if (token.matches("\\d+(,\\d+)?")) {
+                for (char digit : token.toCharArray()) {
+                    if (digit == ',') {
+                        calculator.appendDecimal();
+                    } else {
+                        calculator.appendDigit(String.valueOf(digit));
+                    }
+                }
+            } else if ("(".equals(token)) {
+                calculator.appendParenthesis("(");
+            } else if (")".equals(token)) {
+                calculator.appendParenthesis(")");
+            } else {
+                calculator.appendOperator(token);
+            }
+        }
+        String result = calculator.calculate();
+        assertEquals("500", result);
+    }
+
+    @Test
     public void testNormalization() {
         String input = "calcule cinco mais três";
         String normalized = NativeVoiceRecognizer.normalizeMathPhrase(input);

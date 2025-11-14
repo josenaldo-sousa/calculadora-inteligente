@@ -881,8 +881,28 @@ public class VoiceCommandProcessor {
                 }
 
                 if (normalized.matches("\\d+([,.]\\d+)?")) {
-                    String ui = normalized.replace('.', ',');
-                    String math = normalized.replace(',', '.');
+                    String math;
+                    String ui;
+
+                    boolean hasDot = normalized.contains(".");
+                    boolean hasComma = normalized.contains(",");
+
+                    if (hasDot && !hasComma && VoiceCommandProcessor.isThousandGrouping(normalized)) {
+                        String digitsOnly = normalized.replace(".", "");
+                        math = digitsOnly;
+                        ui = digitsOnly;
+                    } else if (hasDot && hasComma && VoiceCommandProcessor.isThousandGroupingWithDecimal(normalized)) {
+                        String digitsOnly = normalized.replace(".", "");
+                        math = digitsOnly.replace(',', '.');
+                        ui = digitsOnly;
+                        if (ui.contains(".")) {
+                            ui = ui.replace('.', ',');
+                        }
+                    } else {
+                        math = normalized.replace(',', '.');
+                        ui = normalized.replace('.', ',');
+                    }
+
                     ctx.addNumber(ui, math);
                     i++;
                     continue;
@@ -920,5 +940,13 @@ public class VoiceCommandProcessor {
             }
             return null;
         }
+    }
+
+    private static boolean isThousandGrouping(String token) {
+        return token.matches("\\d{1,3}(\\.\\d{3})+");
+    }
+
+    private static boolean isThousandGroupingWithDecimal(String token) {
+        return token.matches("\\d{1,3}(\\.\\d{3})+,\\d+");
     }
 }
