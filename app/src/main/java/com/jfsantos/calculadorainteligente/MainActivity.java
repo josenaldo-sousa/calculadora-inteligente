@@ -32,6 +32,15 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_RECORD_AUDIO = 1;
+    private static final String KEY_CALC_EXPRESSION = "key_calc_expression";
+    private static final String KEY_CALC_CURRENT = "key_calc_current";
+    private static final String KEY_CALC_START_NEW = "key_calc_start_new";
+    private static final String KEY_DISPLAY_EXPRESSION = "key_display_expression";
+    private static final String KEY_DISPLAY_RESULT = "key_display_result";
+    private static final String KEY_VOICE_RAW = "key_voice_raw";
+    private static final String KEY_VOICE_CONVERTED = "key_voice_converted";
+    private static final String KEY_VOICE_PREVIEW_VISIBLE = "key_voice_preview_visible";
+    private static final String KEY_ADVANCED_EXPANDED = "key_advanced_expanded";
 
     private TextView tvResult;
     private TextView tvExpression;
@@ -39,10 +48,50 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvVoiceConverted;
     private View voicePreview;
     private MaterialButton btnVoice;
+    private MaterialButton btnToggleAdvanced;
+    private View advancedContainer;
     private Calculator calculator;
     private SpeechRecognizer speechRecognizer;
     private boolean isListening = false;
+    private boolean advancedExpanded = false;
     private AdView mAdView;
+
+    private void releaseSpeechRecognizer() {
+        if (speechRecognizer == null) {
+            return;
+        }
+
+        try {
+            speechRecognizer.stopListening();
+        } catch (IllegalStateException ignored) {
+            // Recognizer not yet started; safe to ignore.
+        }
+
+        speechRecognizer.cancel();
+        speechRecognizer.destroy();
+        speechRecognizer = null;
+        isListening = false;
+
+        if (btnVoice != null) {
+            btnVoice.setEnabled(true);
+        }
+
+        if (voicePreview != null) {
+            voicePreview.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateAdvancedVisibility() {
+        if (advancedContainer != null) {
+            advancedContainer.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
+        }
+
+        if (btnToggleAdvanced != null) {
+            btnToggleAdvanced.setText(advancedExpanded
+                    ? getString(R.string.advanced_toggle_hide)
+                    : getString(R.string.advanced_toggle_show));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +111,18 @@ public class MainActivity extends AppCompatActivity {
         tvVoiceConverted = findViewById(R.id.tvVoiceConverted);
         voicePreview = findViewById(R.id.voicePreview);
         btnVoice = findViewById(R.id.btnVoice);
+        btnToggleAdvanced = findViewById(R.id.btnToggleAdvanced);
+        advancedContainer = findViewById(R.id.advancedContainer);
         calculator = new Calculator();
+
+        if (btnToggleAdvanced != null) {
+            btnToggleAdvanced.setOnClickListener(v -> {
+                advancedExpanded = !advancedExpanded;
+                updateAdvancedVisibility();
+            });
+        }
+
+        updateAdvancedVisibility();
 
         // Initialize speech recognizer
         initializeSpeechRecognizer();
@@ -71,12 +131,24 @@ public class MainActivity extends AppCompatActivity {
         setupNumberButtons();
         setupOperatorButtons();
         setupFunctionButtons();
+
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        } else {
+            updateDisplay();
+        }
     }
 
     private void initializeSpeechRecognizer() {
-        if (SpeechRecognizer.isRecognitionAvailable(this)) {
-            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-            speechRecognizer.setRecognitionListener(new RecognitionListener() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            speechRecognizer = null;
+            return;
+        }
+
+        releaseSpeechRecognizer();
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
                 @Override
                 public void onReadyForSpeech(Bundle params) {
                     isListening = true;
@@ -182,8 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onEvent(int eventType, Bundle params) {
                 }
-            });
-        }
+        });
     }
 
     private void setupNumberButtons() {
@@ -327,6 +398,37 @@ public class MainActivity extends AppCompatActivity {
                 calculator.appendFunction("log", inner);
                 updateDisplay();
             });
+        }
+    }
+
+    private void restoreState(@NonNull Bundle state) {
+        String calcExpression = state.getString(KEY_CALC_EXPRESSION, "");
+        String calcCurrent = state.getString(KEY_CALC_CURRENT, "");
+        boolean shouldStartNewNumber = state.getBoolean(KEY_CALC_START_NEW, true);
+
+        if (calculator != null) {
+            calculator.restoreState(calcExpression, calcCurrent, shouldStartNewNumber);
+        }
+
+        advancedExpanded = state.getBoolean(KEY_ADVANCED_EXPANDED, false);
+        updateAdvancedVisibility();
+        updateDisplay();
+
+        if (tvExpression != null) {
+            tvExpression.setText(state.getString(KEY_DISPLAY_EXPRESSION, ""));
+        }
+        if (tvResult != null) {
+            tvResult.setText(state.getString(KEY_DISPLAY_RESULT, ""));
+        }
+        if (tvVoiceRaw != null) {
+            tvVoiceRaw.setText(state.getString(KEY_VOICE_RAW, ""));
+        }
+        if (tvVoiceConverted != null) {
+            tvVoiceConverted.setText(state.getString(KEY_VOICE_CONVERTED, ""));
+        }
+        if (voicePreview != null) {
+            boolean previewVisible = state.getBoolean(KEY_VOICE_PREVIEW_VISIBLE, false);
+            voicePreview.setVisibility(previewVisible ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -549,10 +651,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (calculator != null) {
+            outState.putString(KEY_CALC_EXPRESSION, calculator.getExpression());
+            outState.putString(KEY_CALC_CURRENT, calculator.getCurrentNumberRaw());
+            outState.putBoolean(KEY_CALC_START_NEW, calculator.isReadyForNewNumber());
+        }
+        if (tvExpression != null) {
+            outState.putString(KEY_DISPLAY_EXPRESSION, tvExpression.getText().toString());
+        }
+        if (tvResult != null) {
+            outState.putString(KEY_DISPLAY_RESULT, tvResult.getText().toString());
+        }
+        if (tvVoiceRaw != null) {
+            outState.putString(KEY_VOICE_RAW, tvVoiceRaw.getText().toString());
+        }
+        if (tvVoiceConverted != null) {
+            outState.putString(KEY_VOICE_CONVERTED, tvVoiceConverted.getText().toString());
+        }
+        outState.putBoolean(KEY_VOICE_PREVIEW_VISIBLE,
+                voicePreview != null && voicePreview.getVisibility() == View.VISIBLE);
+        outState.putBoolean(KEY_ADVANCED_EXPANDED, advancedExpanded);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (speechRecognizer != null) {
-            speechRecognizer.destroy();
-        }
+        releaseSpeechRecognizer();
     }
 }

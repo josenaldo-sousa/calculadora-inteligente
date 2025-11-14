@@ -402,4 +402,21 @@ public class Calculator {
             expression = full + "!";
         }
     }
+
+    public String getCurrentNumberRaw() {
+        return currentNumber.toString();
+    }
+
+    public boolean isReadyForNewNumber() {
+        return startNewNumber;
+    }
+
+    public void restoreState(String expressionValue, String currentNumberValue, boolean shouldStartNewNumber) {
+        expression = expressionValue != null ? expressionValue : "";
+        currentNumber = new StringBuilder();
+        if (currentNumberValue != null && !currentNumberValue.isEmpty()) {
+            currentNumber.append(currentNumberValue);
+        }
+        startNewNumber = shouldStartNewNumber;
+    }
 }

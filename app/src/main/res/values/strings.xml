@@ -36,4 +36,6 @@
     <string name="permission_required">Permissão de microfone necessária</string>
     <string name="error_division_zero">Não é possível dividir por zero</string>
     <string name="error_invalid_operation">Operação inválida</string>
+    <string name="advanced_toggle_show">Mostrar avançado</string>
+    <string name="advanced_toggle_hide">Ocultar avançado</string>
 </resources>
