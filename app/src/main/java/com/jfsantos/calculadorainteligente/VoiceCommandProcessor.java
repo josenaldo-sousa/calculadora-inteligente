@@ -425,6 +425,57 @@ public class VoiceCommandProcessor {
         return new ParseResult(ui, math, idx);
     }
 
+    static ParseResult parseNumericLiteral(String[] words, int i) {
+        int idx = i;
+        while (idx < words.length) {
+            String word = words[idx];
+            if (word == null) {
+                break;
+            }
+            String normalized = normalizeText(word);
+            if (normalized.isEmpty()) {
+                idx++;
+                continue;
+            }
+            if (fillerWords.contains(normalized)) {
+                if (startsWithOperator(words, idx)) {
+                    break;
+                }
+                idx++;
+                continue;
+            }
+
+            if (normalized.matches("\\d+([,.]\\d+)?") ||
+                    isThousandGrouping(normalized) ||
+                    isThousandGroupingWithDecimal(normalized)) {
+                String math;
+                String ui;
+                boolean hasDot = normalized.contains(".");
+                boolean hasComma = normalized.contains(",");
+
+                if (hasDot && !hasComma && isThousandGrouping(normalized)) {
+                    String digitsOnly = normalized.replace(".", "");
+                    math = digitsOnly;
+                    ui = digitsOnly;
+                } else if (hasDot && hasComma && isThousandGroupingWithDecimal(normalized)) {
+                    String digitsOnly = normalized.replace(".", "");
+                    math = digitsOnly.replace(',', '.');
+                    ui = digitsOnly;
+                    if (ui.contains(".")) {
+                        ui = ui.replace('.', ',');
+                    }
+                } else {
+                    math = normalized.replace(',', '.');
+                    ui = normalized.replace('.', ',');
+                }
+
+                return new ParseResult(ui, math, idx + 1);
+            }
+            break;
+        }
+        return null;
+    }
+
     private static boolean startsWithOperator(String[] words, int index) {
         if (words == null || index < 0 || index >= words.length) {
             return false;
@@ -825,6 +876,9 @@ public class VoiceCommandProcessor {
                         if (!applied) {
                             int nextIndex = i + match.length;
                             ParseResult factorialNumber = parseNumber(wordArray, nextIndex);
+                            if (factorialNumber == null) {
+                                factorialNumber = parseNumericLiteral(wordArray, nextIndex);
+                            }
                             if (factorialNumber != null) {
                                 ctx.addNumber(factorialNumber.uiString, factorialNumber.mathString);
                                 ctx.addFactorial();
