@@ -131,29 +131,44 @@ public class VoiceRecognitionTest {
 
     @Test
     public void testThousandDivisionThroughCalculator() {
-        Calculator calculator = new Calculator();
-        String processed = VoiceCommandProcessor.processVoiceCommand("mil dividido por dois");
-    assertEquals("1000 ÷ 2", processed);
-        String[] tokens = processed.split("\\s+");
-        for (String token : tokens) {
-            if (token.matches("\\d+(,\\d+)?")) {
-                for (char digit : token.toCharArray()) {
-                    if (digit == ',') {
-                        calculator.appendDecimal();
-                    } else {
-                        calculator.appendDigit(String.valueOf(digit));
-                    }
-                }
-            } else if ("(".equals(token)) {
-                calculator.appendParenthesis("(");
-            } else if (")".equals(token)) {
-                calculator.appendParenthesis(")");
-            } else {
-                calculator.appendOperator(token);
-            }
-        }
-        String result = calculator.calculate();
+        String result = evaluateWithCalculator("mil dividido por dois");
         assertEquals("500", result);
+    }
+
+    @Test
+    public void testPercentageEvaluation() {
+        String result = NativeVoiceRecognizer.calculateWithMXParser("vinte por cento mais cinco");
+        assertEquals("5,2", result);
+    }
+
+    @Test
+    public void testPercentageThroughCalculator() {
+        String result = evaluateWithCalculator("vinte por cento mais cinco");
+        assertEquals("5,2", result);
+    }
+
+    @Test
+    public void testPercentageOfExpression() {
+        String result = NativeVoiceRecognizer.calculateWithMXParser("dez porcento de cinquenta");
+        assertEquals("5", result);
+    }
+
+    @Test
+    public void testPercentageOfExpressionThroughCalculator() {
+        String result = evaluateWithCalculator("dez por cento de cinquenta");
+        assertEquals("5", result);
+    }
+
+    @Test
+    public void testPercentageSymbolExpression() {
+        String result = NativeVoiceRecognizer.calculateWithMXParser("10% de 40");
+        assertEquals("4", result);
+    }
+
+    @Test
+    public void testPercentageSymbolExpressionThroughCalculator() {
+        String result = evaluateWithCalculator("10% de 40");
+        assertEquals("4", result);
     }
 
     @Test
@@ -190,5 +205,77 @@ public class VoiceRecognitionTest {
         String input = "zero mais zero";
         String result = NativeVoiceRecognizer.calculateWithMXParser(input);
         assertEquals("0", result);
+    }
+
+    private String evaluateWithCalculator(String voiceExpression) {
+        String processed = VoiceCommandProcessor.processVoiceCommand(voiceExpression);
+        if (processed == null || processed.isEmpty()) {
+            return "";
+        }
+
+        if (processed.endsWith("=")) {
+            processed = VoiceCommandProcessor.cleanExpression(processed);
+        }
+
+        Calculator calculator = new Calculator();
+        String[] tokens = processed.split("\\s+");
+        for (int i = 0; i < tokens.length; i++) {
+            String token = tokens[i];
+            if (token == null || token.isEmpty()) {
+                continue;
+            }
+
+            if (token.matches("\\d+(,\\d+)?")) {
+                for (char digit : token.toCharArray()) {
+                    if (digit == ',') {
+                        calculator.appendDecimal();
+                    } else {
+                        calculator.appendDigit(String.valueOf(digit));
+                    }
+                }
+                continue;
+            }
+
+            switch (token) {
+                case "(":
+                    calculator.appendParenthesis("(");
+                    continue;
+                case ")":
+                    calculator.appendParenthesis(")");
+                    continue;
+                case "+":
+                case "−":
+                case "×":
+                case "÷":
+                case "^":
+                    calculator.appendOperator(token);
+                    continue;
+                case "%":
+                    String percentValue = calculator.calculatePercent();
+                    calculator.setCurrentNumber(percentValue);
+                    continue;
+                default:
+                    break;
+            }
+
+            if (token.equals("√") || token.equals("sin") || token.equals("cos") || token.equals("tan") || token.equals("log") || token.equals("ln")) {
+                String argument = "";
+                if (i + 1 < tokens.length) {
+                    argument = tokens[i + 1];
+                    i++;
+                }
+                if (argument != null && !argument.isEmpty()) {
+                    String functionName = token.equals("√") ? "√" : token;
+                    calculator.appendFunction(functionName, argument);
+                }
+                continue;
+            }
+
+            if (token.equals("!")) {
+                calculator.appendFactorial();
+            }
+        }
+
+        return calculator.calculate();
     }
 }

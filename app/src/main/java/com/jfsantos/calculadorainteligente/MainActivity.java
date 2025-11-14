@@ -418,9 +418,12 @@ public class MainActivity extends AppCompatActivity {
                 case "−":
                 case "×":
                 case "÷":
-                case "%":
                 case "^":
                     calculator.appendOperator(token);
+                    continue;
+                case "%":
+                    String percentValue = calculator.calculatePercent();
+                    calculator.setCurrentNumber(percentValue);
                     continue;
                 default:
                     break;

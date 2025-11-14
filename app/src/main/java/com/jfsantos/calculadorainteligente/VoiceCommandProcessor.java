@@ -135,11 +135,21 @@ public class VoiceCommandProcessor {
         operatorWords.put("slash", "÷");
         operatorWords.put("barra", "÷");
 
-        operatorWords.put("por cento", "%");
-        operatorWords.put("porcento", "%");
-        operatorWords.put("porcentagem", "%");
-        operatorWords.put("percentual", "%");
-        operatorWords.put("percent", "%");
+    operatorWords.put("por cento", "%");
+    operatorWords.put("por cento de", "%");
+    operatorWords.put("por cento do", "%");
+    operatorWords.put("por cento da", "%");
+    operatorWords.put("por cento dos", "%");
+    operatorWords.put("por cento das", "%");
+    operatorWords.put("porcento", "%");
+    operatorWords.put("porcento de", "%");
+    operatorWords.put("porcento do", "%");
+    operatorWords.put("porcento da", "%");
+    operatorWords.put("porcento dos", "%");
+    operatorWords.put("porcento das", "%");
+    operatorWords.put("porcentagem", "%");
+    operatorWords.put("percentual", "%");
+    operatorWords.put("percent", "%");
 
         operatorWords.put("abre parenteses", "(");
         operatorWords.put("abre parentese", "(");
@@ -868,6 +878,34 @@ public class VoiceCommandProcessor {
                     continue;
                 }
                 String normalized = normalizeText(word);
+                if (normalized.matches("\\d+([.,]\\d+)?%")) {
+                    String numberPart = normalized.substring(0, normalized.length() - 1);
+                    String math;
+                    String ui;
+                    boolean hasDot = numberPart.contains(".");
+                    boolean hasComma = numberPart.contains(",");
+
+                    if (hasDot && !hasComma && VoiceCommandProcessor.isThousandGrouping(numberPart)) {
+                        String digitsOnly = numberPart.replace(".", "");
+                        math = digitsOnly;
+                        ui = digitsOnly;
+                    } else if (hasDot && hasComma && VoiceCommandProcessor.isThousandGroupingWithDecimal(numberPart)) {
+                        String digitsOnly = numberPart.replace(".", "");
+                        math = digitsOnly.replace(',', '.');
+                        ui = digitsOnly;
+                        if (ui.contains(".")) {
+                            ui = ui.replace('.', ',');
+                        }
+                    } else {
+                        math = numberPart.replace(',', '.');
+                        ui = numberPart.replace('.', ',');
+                    }
+
+                    ctx.addNumber(ui, math);
+                    ctx.addPercent();
+                    i++;
+                    continue;
+                }
                 ParseResult number = parseNumber(wordArray, i);
                 if (number != null) {
                     ctx.addNumber(number.uiString, number.mathString);
