@@ -30,6 +30,9 @@
     <string name="btn_log">log</string>
     <string name="btn_ln">ln</string>
     <string name="btn_factorial">!</string>
+    <string name="btn_pi">π</string>
+    <string name="btn_e_math">e</string>
+    <string name="btn_rad">RAD</string>
     <string name="voice_prompt">Diga uma operação matemática</string>
     <string name="voice_error">Erro ao reconhecer voz</string>
     <string name="voice_not_available">Reconhecimento de voz não disponível</string>

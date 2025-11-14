@@ -41,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_VOICE_CONVERTED = "key_voice_converted";
     private static final String KEY_VOICE_PREVIEW_VISIBLE = "key_voice_preview_visible";
     private static final String KEY_ADVANCED_EXPANDED = "key_advanced_expanded";
+    private static final String CONST_PI = "3.141592653589793";
+    private static final String CONST_E = "2.718281828459045";
+    private static final String CONST_RAD = "0.017453292519943295";
 
     private TextView tvResult;
     private TextView tvExpression;
@@ -399,6 +402,38 @@ public class MainActivity extends AppCompatActivity {
                 updateDisplay();
             });
         }
+
+        View pi = findViewById(R.id.btnPi);
+        if (pi != null) {
+            pi.setOnClickListener(v -> {
+                calculator.appendConstant(CONST_PI);
+                updateDisplay();
+            });
+        }
+
+        View eButton = findViewById(R.id.btnE);
+        if (eButton != null) {
+            eButton.setOnClickListener(v -> {
+                calculator.appendConstant(CONST_E);
+                updateDisplay();
+            });
+        }
+
+        View rad = findViewById(R.id.btnRad);
+        if (rad != null) {
+            rad.setOnClickListener(v -> {
+                calculator.appendConstant(CONST_RAD);
+                updateDisplay();
+            });
+        }
+
+        View factorial = findViewById(R.id.btnFactorial);
+        if (factorial != null) {
+            factorial.setOnClickListener(v -> {
+                calculator.appendFactorial();
+                updateDisplay();
+            });
+        }
     }
 
     private void restoreState(@NonNull Bundle state) {
@@ -549,6 +584,21 @@ public class MainActivity extends AppCompatActivity {
                     continue;
                 default:
                     break;
+            }
+
+            if ("π".equals(token) || "pi".equalsIgnoreCase(token)) {
+                calculator.appendConstant(CONST_PI);
+                continue;
+            }
+
+            if ("e".equalsIgnoreCase(token) || "euler".equalsIgnoreCase(token)) {
+                calculator.appendConstant(CONST_E);
+                continue;
+            }
+
+            if ("RAD".equalsIgnoreCase(token) || "radiano".equalsIgnoreCase(token)) {
+                calculator.appendConstant(CONST_RAD);
+                continue;
             }
 
             if (token.equals("√") || token.equals("sin") || token.equals("cos") || token.equals("tan") || token.equals("log") || token.equals("ln")) {

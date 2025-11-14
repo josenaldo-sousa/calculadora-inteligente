@@ -616,6 +616,66 @@
                             app:cornerRadius="@dimen/button_corner_radius"
                             android:backgroundTint="@color/btn_function"
                             android:textColor="@color/btn_function_text" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPi"
+                            style="@style/Widget.CalculadoraInteligente.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="2"
+                            android:layout_column="0"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/margin_small"
+                            android:text="@string/btn_pi"
+                            android:textSize="@dimen/button_text_size"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:backgroundTint="@color/btn_function"
+                            android:textColor="@color/btn_function_text" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnE"
+                            style="@style/Widget.CalculadoraInteligente.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="2"
+                            android:layout_column="1"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/margin_small"
+                            android:text="@string/btn_e_math"
+                            android:textSize="@dimen/button_text_size"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:backgroundTint="@color/btn_function"
+                            android:textColor="@color/btn_function_text" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRad"
+                            style="@style/Widget.CalculadoraInteligente.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="2"
+                            android:layout_column="2"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/margin_small"
+                            android:text="@string/btn_rad"
+                            android:textSize="@dimen/button_text_size"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:backgroundTint="@color/btn_function"
+                            android:textColor="@color/btn_function_text" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFactorial"
+                            style="@style/Widget.CalculadoraInteligente.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_row="2"
+                            android:layout_column="3"
+                            android:layout_columnWeight="1"
+                            android:layout_margin="@dimen/margin_small"
+                            android:text="@string/btn_factorial"
+                            android:textSize="@dimen/button_text_size"
+                            app:cornerRadius="@dimen/button_corner_radius"
+                            android:backgroundTint="@color/btn_function"
+                            android:textColor="@color/btn_function_text" />
                     </androidx.gridlayout.widget.GridLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

@@ -16,6 +16,7 @@ import java.util.Set;
 public class VoiceCommandProcessor {
     private static final Map<String, String> numberWords = new HashMap<>();
     private static final Map<String, String> operatorWords = new HashMap<>();
+    private static final Map<String, ConstantValue> constantWords = new HashMap<>();
     private static final Set<String> fillerWords = new HashSet<>(Arrays.asList(
             "e", "da", "de", "do", "das", "dos", "com", "por", "a", "o", "os", "as", "ao", "aos", "uma", "um"
     ));
@@ -206,6 +207,7 @@ public class VoiceCommandProcessor {
         operatorWords.put("remove", "DEL");
 
         addNormalizedOperators();
+        initConstantWords();
     }
 
     private static void addNormalizedOperators() {
@@ -224,6 +226,41 @@ public class VoiceCommandProcessor {
             }
         }
         operatorWords.putAll(toAdd);
+    }
+
+    private static void initConstantWords() {
+        constantWords.clear();
+
+        addConstant("pi", "π", "3.141592653589793");
+        addConstant("constante pi", "π", "3.141592653589793");
+        addConstant("numero pi", "π", "3.141592653589793");
+        addConstant("valor de pi", "π", "3.141592653589793");
+
+        addConstant("numero e", "e", "2.718281828459045");
+        addConstant("constante e", "e", "2.718281828459045");
+        addConstant("numero de euler", "e", "2.718281828459045");
+        addConstant("constante de euler", "e", "2.718281828459045");
+        addConstant("numero neperiano", "e", "2.718281828459045");
+        addConstant("neperiano", "e", "2.718281828459045");
+        addConstant("euler", "e", "2.718281828459045");
+
+        addConstant("radius", "RAD", "0.017453292519943295");
+        addConstant("rad", "RAD", "0.017453292519943295");
+        addConstant("radiano", "RAD", "0.017453292519943295");
+        addConstant("radianos", "RAD", "0.017453292519943295");
+        addConstant("constante radiano", "RAD", "0.017453292519943295");
+        addConstant("constante radius", "RAD", "0.017453292519943295");
+    }
+
+    private static void addConstant(String phrase, String ui, String math) {
+        if (phrase == null || ui == null || math == null) {
+            return;
+        }
+        String normalized = normalizeText(phrase);
+        if (normalized.isEmpty()) {
+            return;
+        }
+        constantWords.put(normalized, new ConstantValue(ui, math));
     }
 
     public static ProcessResult processVoiceCommandDetailed(String voiceText) {
@@ -582,6 +619,17 @@ public class VoiceCommandProcessor {
             prevType = TokenType.NUMBER;
         }
 
+        void addConstant(String ui, String math) {
+            if (ui == null || math == null || ui.isEmpty() || math.isEmpty()) {
+                return;
+            }
+            maybeInsertImplicitMultiplication();
+            mathTokens.add(math);
+            mathTokenTypes.add(TokenType.CONSTANT);
+            uiTokens.add(ui);
+            prevType = TokenType.CONSTANT;
+        }
+
         void addOperator(String math, String ui) {
             if (mathTokens.isEmpty()) {
                 if ("-".equals(math)) {
@@ -786,8 +834,19 @@ public class VoiceCommandProcessor {
         }
     }
 
+    private static final class ConstantValue {
+        final String ui;
+        final String math;
+
+        ConstantValue(String ui, String math) {
+            this.ui = ui;
+            this.math = math;
+        }
+    }
+
     private static final class SpeechExpressionParser {
         private static final int MAX_OPERATOR_WORDS = 3;
+        private static final int MAX_CONSTANT_WORDS = 4;
 
         private SpeechExpressionParser() {
         }
@@ -942,6 +1001,15 @@ public class VoiceCommandProcessor {
                     i += match.length;
                     continue;
                 }
+                ConstantMatch constantMatch = matchConstant(words, i);
+                if (constantMatch != null) {
+                    ConstantValue constantValue = constantWords.get(constantMatch.phrase);
+                    if (constantValue != null) {
+                        ctx.addConstant(constantValue.ui, constantValue.math);
+                        i += constantMatch.length;
+                        continue;
+                    }
+                }
                 String normalized = normalizeText(word);
                 if (normalized.matches("\\d+([.,]\\d+)?%")) {
                     String numberPart = normalized.substring(0, normalized.length() - 1);
@@ -1042,6 +1110,34 @@ public class VoiceCommandProcessor {
                 }
             }
             return null;
+        }
+
+        private static ConstantMatch matchConstant(List<String> words, int index) {
+            int max = Math.min(words.size(), index + MAX_CONSTANT_WORDS);
+            for (int end = max; end > index; end--) {
+                StringBuilder candidate = new StringBuilder();
+                for (int i = index; i < end; i++) {
+                    if (i > index) {
+                        candidate.append(' ');
+                    }
+                    candidate.append(words.get(i));
+                }
+                String normalized = normalizeText(candidate.toString());
+                if (constantWords.containsKey(normalized)) {
+                    return new ConstantMatch(normalized, end - index);
+                }
+            }
+            return null;
+        }
+
+        private static final class ConstantMatch {
+            final String phrase;
+            final int length;
+
+            ConstantMatch(String phrase, int length) {
+                this.phrase = phrase;
+                this.length = length;
+            }
         }
     }
 
