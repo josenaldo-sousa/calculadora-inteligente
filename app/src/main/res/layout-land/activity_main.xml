@@ -6,16 +6,6 @@
     android:background="?attr/colorSurface"
     android:padding="@dimen/margin_medium">
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:title="@string/app_name"
-        app:titleCentered="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:orientation="vertical"
@@ -27,7 +17,8 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:paddingEnd="@dimen/margin_small"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+    android:layout_marginTop="@dimen/margin_medium"
+    app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/guideline">
@@ -72,7 +63,7 @@
             android:id="@+id/displayCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginBottom="@dimen/margin_large"
             app:cardCornerRadius="@dimen/display_corner_radius"
             app:cardElevation="@dimen/display_elevation"
             app:cardBackgroundColor="?attr/colorSurfaceVariant">
@@ -119,7 +110,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:layout_marginTop="@dimen/margin_medium"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintEnd_toEndOf="parent">
@@ -128,6 +120,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingTop="@dimen/margin_large"
             android:paddingBottom="@dimen/margin_small">
 
             <androidx.gridlayout.widget.GridLayout
