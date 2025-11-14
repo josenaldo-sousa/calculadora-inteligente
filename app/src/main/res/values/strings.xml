@@ -33,6 +33,8 @@
     <string name="btn_pi">π</string>
     <string name="btn_e_math">e</string>
     <string name="btn_rad">RAD</string>
+    <string name="voice_result_prefix">Resultado: %1$s</string>
+    <string name="voice_feedback_unavailable">Sintetizador de voz indisponível</string>
     <string name="voice_prompt">Diga uma operação matemática</string>
     <string name="voice_error">Erro ao reconhecer voz</string>
     <string name="voice_not_available">Reconhecimento de voz não disponível</string>

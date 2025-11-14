@@ -408,6 +408,39 @@ public class Calculator {
         return currentNumber.toString();
     }
 
+    public boolean hasCompleteExpression() {
+        String fullExpression = getFullExpression();
+        if (fullExpression.isEmpty()) {
+            return false;
+        }
+
+        String trimmed = fullExpression.trim();
+        if (trimmed.isEmpty()) {
+            return false;
+        }
+
+        char lastChar = trimmed.charAt(trimmed.length() - 1);
+        if (lastChar == '+' || lastChar == '-' || lastChar == '−' || lastChar == '×'
+                || lastChar == '÷' || lastChar == '%' || lastChar == '^'
+                || lastChar == ',' || lastChar == '.') {
+            return false;
+        }
+
+        int balance = 0;
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (c == '(') {
+                balance++;
+            } else if (c == ')') {
+                balance--;
+                if (balance < 0) {
+                    return false;
+                }
+            }
+        }
+        return balance == 0;
+    }
+
     public boolean isReadyForNewNumber() {
         return startNewNumber;
     }

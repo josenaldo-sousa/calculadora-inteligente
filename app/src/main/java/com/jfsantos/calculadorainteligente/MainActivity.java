@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Toast;
 import android.os.Handler;
@@ -58,6 +59,24 @@ public class MainActivity extends AppCompatActivity {
     private boolean isListening = false;
     private boolean advancedExpanded = false;
     private AdView mAdView;
+    private TextToSpeech textToSpeech;
+    private boolean isTextToSpeechReady = false;
+    private String lastSpokenIntermediate = "";
+    private final Handler speechHandler = new Handler(Looper.getMainLooper());
+    private String scheduledIntermediateResult = "";
+    private final Runnable speakIntermediateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isTextToSpeechReady) {
+                return;
+            }
+            if (scheduledIntermediateResult == null || scheduledIntermediateResult.isEmpty()) {
+                return;
+            }
+            speakPartialResult(scheduledIntermediateResult);
+            scheduledIntermediateResult = "";
+        }
+    };
 
     private void releaseSpeechRecognizer() {
         if (speechRecognizer == null) {
@@ -129,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize speech recognizer
         initializeSpeechRecognizer();
+        initializeTextToSpeech();
 
         // Setup button listeners
         setupNumberButtons();
@@ -140,6 +160,152 @@ public class MainActivity extends AppCompatActivity {
         } else {
             updateDisplay();
         }
+    }
+
+    private void initializeTextToSpeech() {
+        textToSpeech = new TextToSpeech(this, status -> {
+            if (status == TextToSpeech.SUCCESS) {
+                int languageStatus = textToSpeech.setLanguage(new Locale("pt", "BR"));
+                isTextToSpeechReady = languageStatus != TextToSpeech.LANG_MISSING_DATA &&
+                        languageStatus != TextToSpeech.LANG_NOT_SUPPORTED;
+                textToSpeech.setSpeechRate(1.0f);
+                if (!isTextToSpeechReady) {
+                    Toast.makeText(this, R.string.voice_feedback_unavailable, Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                isTextToSpeechReady = false;
+                Toast.makeText(this, R.string.voice_feedback_unavailable, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void speakButtonFeedback(String rawToken) {
+        if (!isTextToSpeechReady || rawToken == null) {
+            return;
+        }
+        String message = describeToken(rawToken);
+        if (message.isEmpty()) {
+            return;
+        }
+    textToSpeech.speak(message, TextToSpeech.QUEUE_ADD, null,
+                "btn_" + System.currentTimeMillis());
+    }
+
+    private void speakResult(String result) {
+        speakResultInternal(result, TextToSpeech.QUEUE_ADD, "result_");
+    }
+
+    private void speakPartialResult(String result) {
+        speakResultInternal(result, TextToSpeech.QUEUE_ADD, "partial_");
+    }
+
+    private void speakResultInternal(String result, int queueMode, String utterancePrefix) {
+        if (!isTextToSpeechReady || result == null || result.isEmpty()) {
+            return;
+        }
+        String normalized = result
+                .replace("-", " menos ")
+                .replace(",", " vírgula ")
+                .replace("%", " por cento");
+        normalized = normalized.replaceAll("\\s+", " ").trim();
+        if (normalized.isEmpty()) {
+            return;
+        }
+        String message = getString(R.string.voice_result_prefix, normalized).trim();
+        if (message.isEmpty()) {
+            return;
+        }
+        textToSpeech.speak(message, queueMode, null,
+                utterancePrefix + System.currentTimeMillis());
+        if (queueMode == TextToSpeech.QUEUE_ADD) {
+            lastSpokenIntermediate = result;
+        }
+    }
+
+    private String describeToken(String rawToken) {
+        if (rawToken == null) {
+            return "";
+        }
+        switch (rawToken) {
+            case "+":
+                return "mais";
+            case "−":
+            case "-":
+                return "menos";
+            case "×":
+            case "*":
+                return "vezes";
+            case "÷":
+            case "/":
+                return "dividido";
+            case "^":
+                return "elevado";
+            case "%":
+                return "por cento";
+            case ".":
+            case ",":
+                return "vírgula";
+            case "√":
+                return "raiz quadrada";
+            case "(":
+                return "abre parêntese";
+            case ")":
+                return "fecha parêntese";
+            case "sin":
+                return "seno";
+            case "cos":
+                return "cosseno";
+            case "tan":
+                return "tangente";
+            case "log":
+                return "logaritmo";
+            case "ln":
+                return "logaritmo natural";
+            case "π":
+            case "pi":
+                return "pi";
+            case "e":
+                return "constante e";
+            case "RAD":
+            case "rad":
+                return "radiano";
+            case "!":
+                return "fatorial";
+            case "C":
+                return "limpar";
+            case "DEL":
+                return "apagar";
+            case "=":
+                return "igual";
+            default:
+                return rawToken;
+        }
+    }
+
+    private void maybeSpeakIntermediateResult(String expression, String partialResult) {
+        if (!isTextToSpeechReady) {
+            scheduledIntermediateResult = "";
+            speechHandler.removeCallbacks(speakIntermediateRunnable);
+            return;
+        }
+        if (expression == null || expression.trim().isEmpty()) {
+            lastSpokenIntermediate = "";
+            scheduledIntermediateResult = "";
+            speechHandler.removeCallbacks(speakIntermediateRunnable);
+            return;
+        }
+        if (partialResult == null || partialResult.isEmpty()
+                || "Erro".equalsIgnoreCase(partialResult) || "-".equals(partialResult)) {
+            scheduledIntermediateResult = "";
+            speechHandler.removeCallbacks(speakIntermediateRunnable);
+            return;
+        }
+        if (partialResult.equals(lastSpokenIntermediate) || partialResult.equals(scheduledIntermediateResult)) {
+            return;
+        }
+        scheduledIntermediateResult = partialResult;
+        speechHandler.removeCallbacks(speakIntermediateRunnable);
+        speechHandler.postDelayed(speakIntermediateRunnable, 60);
     }
 
     private void initializeSpeechRecognizer() {
@@ -270,6 +436,7 @@ public class MainActivity extends AppCompatActivity {
             MaterialButton button = (MaterialButton) v;
             calculator.appendDigit(button.getText().toString());
             updateDisplay();
+            speakButtonFeedback(button.getText().toString());
         };
 
         for (int id : numberButtonIds) {
@@ -280,6 +447,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnDecimal).setOnClickListener(v -> {
             calculator.appendDecimal();
             updateDisplay();
+            speakButtonFeedback(".");
         });
     }
 
@@ -287,21 +455,25 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnPlus).setOnClickListener(v -> {
             calculator.appendOperator("+");
             updateDisplay();
+            speakButtonFeedback("+");
         });
 
         findViewById(R.id.btnMinus).setOnClickListener(v -> {
             calculator.appendOperator("−");
             updateDisplay();
+            speakButtonFeedback("−");
         });
 
         findViewById(R.id.btnMultiply).setOnClickListener(v -> {
             calculator.appendOperator("×");
             updateDisplay();
+            speakButtonFeedback("×");
         });
 
         findViewById(R.id.btnDivide).setOnClickListener(v -> {
             calculator.appendOperator("÷");
             updateDisplay();
+            speakButtonFeedback("÷");
         });
 
         View power = findViewById(R.id.btnPower);
@@ -309,6 +481,7 @@ public class MainActivity extends AppCompatActivity {
             power.setOnClickListener(v -> {
                 calculator.appendOperator("^");
                 updateDisplay();
+                speakButtonFeedback("^");
             });
         }
 
@@ -316,10 +489,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnParenOpen).setOnClickListener(v -> {
             calculator.appendParenthesis("(");
             updateDisplay();
+            speakButtonFeedback("(");
         });
         findViewById(R.id.btnParenClose).setOnClickListener(v -> {
             calculator.appendParenthesis(")");
             updateDisplay();
+            speakButtonFeedback(")");
         });
     }
 
@@ -332,30 +507,37 @@ public class MainActivity extends AppCompatActivity {
                 tvResult.setText(formatNumber(result));
                 calculator.clear();
                 calculator.setCurrentNumber(result);
+                speakButtonFeedback("=");
+                speakResult(result);
             } catch (ArithmeticException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                speakButtonFeedback(e.getMessage());
             }
         });
 
         findViewById(R.id.btnClear).setOnClickListener(v -> {
             calculator.clear();
             updateDisplay();
+            speakButtonFeedback("C");
         });
 
         findViewById(R.id.btnDelete).setOnClickListener(v -> {
             calculator.delete();
             updateDisplay();
+            speakButtonFeedback("DEL");
         });
 
         findViewById(R.id.btnPercent).setOnClickListener(v -> {
             String result = calculator.calculatePercent();
             tvResult.setText(formatNumber(result));
             calculator.setCurrentNumber(result);
+            speakButtonFeedback("%");
         });
 
         findViewById(R.id.btnVoice).setOnClickListener(v -> {
             prepareForVoiceInput();
             startVoiceRecognition();
+            speakButtonFeedback("microfone");
         });
 
         View sqrt = findViewById(R.id.btnSqrt);
@@ -364,6 +546,7 @@ public class MainActivity extends AppCompatActivity {
                 String inner = calculator.getCurrentDisplay();
                 calculator.appendFunction("√", inner);
                 updateDisplay();
+                speakButtonFeedback("√");
             });
         }
 
@@ -373,6 +556,7 @@ public class MainActivity extends AppCompatActivity {
                 String inner = calculator.getCurrentDisplay();
                 calculator.appendFunction("sin", inner);
                 updateDisplay();
+                speakButtonFeedback("sin");
             });
         }
 
@@ -382,6 +566,7 @@ public class MainActivity extends AppCompatActivity {
                 String inner = calculator.getCurrentDisplay();
                 calculator.appendFunction("cos", inner);
                 updateDisplay();
+                speakButtonFeedback("cos");
             });
         }
 
@@ -391,6 +576,7 @@ public class MainActivity extends AppCompatActivity {
                 String inner = calculator.getCurrentDisplay();
                 calculator.appendFunction("tan", inner);
                 updateDisplay();
+                speakButtonFeedback("tan");
             });
         }
 
@@ -400,6 +586,7 @@ public class MainActivity extends AppCompatActivity {
                 String inner = calculator.getCurrentDisplay();
                 calculator.appendFunction("log", inner);
                 updateDisplay();
+                speakButtonFeedback("log");
             });
         }
 
@@ -408,6 +595,7 @@ public class MainActivity extends AppCompatActivity {
             pi.setOnClickListener(v -> {
                 calculator.appendConstant(CONST_PI);
                 updateDisplay();
+                speakButtonFeedback("π");
             });
         }
 
@@ -416,6 +604,7 @@ public class MainActivity extends AppCompatActivity {
             eButton.setOnClickListener(v -> {
                 calculator.appendConstant(CONST_E);
                 updateDisplay();
+                speakButtonFeedback("e");
             });
         }
 
@@ -424,6 +613,7 @@ public class MainActivity extends AppCompatActivity {
             rad.setOnClickListener(v -> {
                 calculator.appendConstant(CONST_RAD);
                 updateDisplay();
+                speakButtonFeedback("RAD");
             });
         }
 
@@ -432,6 +622,7 @@ public class MainActivity extends AppCompatActivity {
             factorial.setOnClickListener(v -> {
                 calculator.appendFactorial();
                 updateDisplay();
+                speakButtonFeedback("!");
             });
         }
     }
@@ -626,8 +817,11 @@ public class MainActivity extends AppCompatActivity {
                 tvResult.setText(formatNumber(result));
                 calculator.clear();
                 calculator.setCurrentNumber(result);
+                speakButtonFeedback("=");
+                speakResult(result);
             } catch (Exception e) {
                 Toast.makeText(this, "Erro ao calcular: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                speakButtonFeedback(e.getMessage());
             }
         } else {
             updateDisplay();
@@ -636,8 +830,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDisplay() {
         // Show the expression being built and the incremental evaluated result
-        tvExpression.setText(calculator.getFullExpression());
-        tvResult.setText(formatNumber(calculator.evaluatePartial()));
+        String expression = calculator.getFullExpression();
+        tvExpression.setText(expression);
+
+        if (calculator.hasCompleteExpression()) {
+            String partialResult = calculator.evaluatePartial();
+            tvResult.setText(formatNumber(partialResult));
+            maybeSpeakIntermediateResult(expression, partialResult);
+        } else {
+            tvResult.setText(expression.isEmpty() ? getString(R.string.display_zero) : "");
+            lastSpokenIntermediate = "";
+        }
     }
 
     private String formatNumber(String number) {
@@ -729,5 +932,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         releaseSpeechRecognizer();
+        speechHandler.removeCallbacksAndMessages(null);
+        scheduledIntermediateResult = "";
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            textToSpeech = null;
+            isTextToSpeechReady = false;
+        }
     }
 }
