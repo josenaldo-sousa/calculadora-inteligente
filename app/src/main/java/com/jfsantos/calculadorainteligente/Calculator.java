@@ -68,8 +68,9 @@ public class Calculator {
         if (fullExpression.isEmpty()) return "0";
 
         fullExpression = fullExpression.trim();
-        if (fullExpression.endsWith("+") || fullExpression.endsWith("-") ||
-            fullExpression.endsWith("×") || fullExpression.endsWith("÷") || fullExpression.endsWith("%")) {
+        if (fullExpression.endsWith("+") || fullExpression.endsWith("-") || fullExpression.endsWith("−") ||
+            fullExpression.endsWith("×") || fullExpression.endsWith("÷") || fullExpression.endsWith("%") ||
+            fullExpression.endsWith("^")) {
             fullExpression = fullExpression.substring(0, fullExpression.length()-1).trim();
         }
 
