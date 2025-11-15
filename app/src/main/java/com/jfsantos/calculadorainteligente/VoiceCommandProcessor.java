@@ -874,7 +874,7 @@ public class VoiceCommandProcessor {
             CommandType command = CommandType.NONE;
             boolean shouldEvaluate = false;
 
-            String[] wordArray = words.toArray(String[]::new);
+            String[] wordArray = words.toArray(new String[0]);
             int i = 0;
             while (i < words.size()) {
                 String word = words.get(i);

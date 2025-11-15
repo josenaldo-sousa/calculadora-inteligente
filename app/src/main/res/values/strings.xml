@@ -17,11 +17,11 @@
     <string name="btn_multiply">×</string>
     <string name="btn_divide">÷</string>
     <string name="btn_equals">=</string>
-    <string name="btn_clear">C</string>
-    <string name="btn_delete">⌫</string>
+    <string name="btn_clear">c</string>
+    <string name="btn_delete">del</string>
     <string name="btn_decimal">.</string>
     <string name="btn_percent">%</string>
-    <string name="btn_voice">🎤</string>
+    <string name="btn_voice">voz</string>
     <string name="btn_sqrt">√</string>
     <string name="btn_power">^</string>
     <string name="btn_sin">sin</string>
@@ -32,7 +32,7 @@
     <string name="btn_factorial">!</string>
     <string name="btn_pi">π</string>
     <string name="btn_e_math">e</string>
-    <string name="btn_rad">RAD</string>
+    <string name="btn_rad">rad</string>
     <string name="voice_result_prefix">Resultado: %1$s</string>
     <string name="voice_feedback_unavailable">Sintetizador de voz indisponível</string>
     <string name="voice_prompt">Diga uma operação matemática</string>

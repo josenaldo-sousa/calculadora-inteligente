@@ -370,11 +370,12 @@ public class Calculator {
         String f = funcName.trim();
         String in = inner.trim();
         if (f.isEmpty() || in.isEmpty()) return;
-        if (currentNumber.length() > 0) {
-            expression += currentNumber.toString();
-            currentNumber = new StringBuilder();
-            startNewNumber = true;
-        }
+        
+        // NÃO adiciona currentNumber à expressão porque ele já está em 'inner'
+        // Apenas limpa o currentNumber
+        currentNumber = new StringBuilder();
+        startNewNumber = true;
+        
         expression = expression.trim();
         if (!expression.isEmpty()) {
             expression = expression + " " + f + "(" + in + ")";

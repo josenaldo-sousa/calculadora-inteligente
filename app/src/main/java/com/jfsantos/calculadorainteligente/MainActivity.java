@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private String scheduledIntermediateResult = "";
     private long lastButtonFeedbackTimestamp = 0L;
     private boolean voiceFeedbackEnabled = false;
+    private boolean showAdvancedControls = false;
     private final Runnable speakIntermediateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -99,11 +100,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateAdvancedVisibility() {
+        if (!showAdvancedControls) {
+            if (advancedContainer != null) {
+                advancedContainer.setVisibility(View.GONE);
+            }
+            if (btnToggleAdvanced != null) {
+                btnToggleAdvanced.setVisibility(View.GONE);
+            }
+            return;
+        }
+
         if (advancedContainer != null) {
             advancedContainer.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
         }
 
         if (btnToggleAdvanced != null) {
+            btnToggleAdvanced.setVisibility(View.VISIBLE);
             btnToggleAdvanced.setText(advancedExpanded
                     ? getString(R.string.advanced_toggle_hide)
                     : getString(R.string.advanced_toggle_show));
@@ -129,11 +141,18 @@ public class MainActivity extends AppCompatActivity {
         advancedContainer = findViewById(R.id.advancedContainer);
         calculator = new Calculator();
 
+        showAdvancedControls = getResources().getBoolean(R.bool.show_advanced_controls);
+        advancedExpanded = showAdvancedControls;
+
         if (btnToggleAdvanced != null) {
-            btnToggleAdvanced.setOnClickListener(v -> {
-                advancedExpanded = !advancedExpanded;
-                updateAdvancedVisibility();
-            });
+            if (showAdvancedControls) {
+                btnToggleAdvanced.setOnClickListener(v -> {
+                    advancedExpanded = !advancedExpanded;
+                    updateAdvancedVisibility();
+                });
+            } else {
+                btnToggleAdvanced.setVisibility(View.GONE);
+            }
         }
 
         updateAdvancedVisibility();
@@ -496,7 +515,9 @@ public class MainActivity extends AppCompatActivity {
     private void setupFunctionButtons() {
         findViewById(R.id.btnEquals).setOnClickListener(v -> {
             try {
+                android.util.Log.d("MainActivity", "Equals clicked - expression: " + calculator.getFullExpression());
                 String result = calculator.calculate();
+                android.util.Log.d("MainActivity", "Result: " + result);
                 // Show the completed expression and result, then reset state keeping result as current number
                 tvExpression.setText(calculator.getFullExpression() + " =");
                 tvResult.setText(formatNumber(result));
@@ -505,8 +526,12 @@ public class MainActivity extends AppCompatActivity {
                 speakButtonFeedback("=");
                 speakResult(result);
             } catch (ArithmeticException e) {
+                android.util.Log.e("MainActivity", "Error calculating: " + e.getMessage());
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 speakButtonFeedback(e.getMessage());
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Unexpected error: " + e.getMessage(), e);
+                Toast.makeText(this, "Erro ao calcular", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -549,7 +574,9 @@ public class MainActivity extends AppCompatActivity {
         if (sin != null) {
             sin.setOnClickListener(v -> {
                 String inner = calculator.getCurrentDisplay();
+                android.util.Log.d("MainActivity", "Sin clicked - inner: " + inner);
                 calculator.appendFunction("sin", inner);
+                android.util.Log.d("MainActivity", "After appendFunction - expression: " + calculator.getExpression());
                 updateDisplay();
                 speakButtonFeedback("sin");
             });
@@ -559,7 +586,9 @@ public class MainActivity extends AppCompatActivity {
         if (cos != null) {
             cos.setOnClickListener(v -> {
                 String inner = calculator.getCurrentDisplay();
+                android.util.Log.d("MainActivity", "Cos clicked - inner: " + inner);
                 calculator.appendFunction("cos", inner);
+                android.util.Log.d("MainActivity", "After appendFunction - expression: " + calculator.getExpression());
                 updateDisplay();
                 speakButtonFeedback("cos");
             });
@@ -569,7 +598,9 @@ public class MainActivity extends AppCompatActivity {
         if (tan != null) {
             tan.setOnClickListener(v -> {
                 String inner = calculator.getCurrentDisplay();
+                android.util.Log.d("MainActivity", "Tan clicked - inner: " + inner);
                 calculator.appendFunction("tan", inner);
+                android.util.Log.d("MainActivity", "After appendFunction - expression: " + calculator.getExpression());
                 updateDisplay();
                 speakButtonFeedback("tan");
             });
@@ -579,7 +610,9 @@ public class MainActivity extends AppCompatActivity {
         if (log != null) {
             log.setOnClickListener(v -> {
                 String inner = calculator.getCurrentDisplay();
+                android.util.Log.d("MainActivity", "Log clicked - inner: " + inner);
                 calculator.appendFunction("log", inner);
+                android.util.Log.d("MainActivity", "After appendFunction - expression: " + calculator.getExpression());
                 updateDisplay();
                 speakButtonFeedback("log");
             });
@@ -631,7 +664,7 @@ public class MainActivity extends AppCompatActivity {
             calculator.restoreState(calcExpression, calcCurrent, shouldStartNewNumber);
         }
 
-        advancedExpanded = state.getBoolean(KEY_ADVANCED_EXPANDED, false);
+        advancedExpanded = showAdvancedControls && state.getBoolean(KEY_ADVANCED_EXPANDED, showAdvancedControls);
         updateAdvancedVisibility();
         updateDisplay();
 
@@ -906,7 +939,7 @@ public class MainActivity extends AppCompatActivity {
         if (tvResult != null) {
             outState.putString(KEY_DISPLAY_RESULT, tvResult.getText().toString());
         }
-        outState.putBoolean(KEY_ADVANCED_EXPANDED, advancedExpanded);
+        outState.putBoolean(KEY_ADVANCED_EXPANDED, showAdvancedControls && advancedExpanded);
     }
 
     @Override

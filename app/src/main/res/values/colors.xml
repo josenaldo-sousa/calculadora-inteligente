@@ -1,45 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base colors -->
-    <color name="md_theme_primary">#006d3a</color>
-    <color name="md_theme_onPrimary">#ffffff</color>
-    <color name="md_theme_primaryContainer">#8cf7b3</color>
-    <color name="md_theme_onPrimaryContainer">#00210e</color>
-    <color name="md_theme_secondary">#4f6353</color>
-    <color name="md_theme_onSecondary">#ffffff</color>
-    <color name="md_theme_secondaryContainer">#d2e8d4</color>
-    <color name="md_theme_onSecondaryContainer">#0d1f13</color>
-    <color name="md_theme_tertiary">#3c6472</color>
-    <color name="md_theme_onTertiary">#ffffff</color>
-    <color name="md_theme_tertiaryContainer">#c0e9fa</color>
-    <color name="md_theme_onTertiaryContainer">#001f28</color>
-    <color name="md_theme_error">#ba1a1a</color>
-    <color name="md_theme_onError">#ffffff</color>
-    <color name="md_theme_errorContainer">#ffdad6</color>
-    <color name="md_theme_onErrorContainer">#410002</color>
-    <color name="md_theme_background">#fbfdf8</color>
-    <color name="md_theme_onBackground">#191c19</color>
-    <color name="md_theme_surface">#fbfdf8</color>
-    <color name="md_theme_onSurface">#191c19</color>
-    <color name="md_theme_surfaceVariant">#dde5db</color>
-    <color name="md_theme_onSurfaceVariant">#414942</color>
-    <color name="md_theme_outline">#717971</color>
+    <color name="md_theme_primary">#6366F1</color>
+    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_primaryContainer">#312E81</color>
+    <color name="md_theme_onPrimaryContainer">#E0E7FF</color>
+    <color name="md_theme_secondary">#22D3EE</color>
+    <color name="md_theme_onSecondary">#05192D</color>
+    <color name="md_theme_secondaryContainer">#164E63</color>
+    <color name="md_theme_onSecondaryContainer">#CFFAFE</color>
+    <color name="md_theme_tertiary">#A855F7</color>
+    <color name="md_theme_onTertiary">#FDF4FF</color>
+    <color name="md_theme_tertiaryContainer">#3B0764</color>
+    <color name="md_theme_onTertiaryContainer">#F3E8FF</color>
+    <color name="md_theme_error">#F87171</color>
+    <color name="md_theme_onError">#2E0F0F</color>
+    <color name="md_theme_errorContainer">#7F1D1D</color>
+    <color name="md_theme_onErrorContainer">#FECACA</color>
+    <color name="md_theme_background">#0B1120</color>
+    <color name="md_theme_onBackground">#E2E8F0</color>
+    <color name="md_theme_surface">#111827</color>
+    <color name="md_theme_onSurface">#F8FAFC</color>
+    <color name="md_theme_surfaceVariant">#1F2937</color>
+    <color name="md_theme_onSurfaceVariant">#CBD5F5</color>
+    <color name="md_theme_outline">#334155</color>
     <color name="md_theme_shadow">#000000</color>
-    <color name="md_theme_inverseSurface">#2e312e</color>
-    <color name="md_theme_inverseOnSurface">#f0f1ec</color>
-    <color name="md_theme_inversePrimary">#70da99</color>
-    <color name="md_theme_surfaceTint">#006d3a</color>
-    <color name="md_theme_surfaceTintColor">#006d3a</color>
+    <color name="md_theme_inverseSurface">#F8FAFC</color>
+    <color name="md_theme_inverseOnSurface">#0F172A</color>
+    <color name="md_theme_inversePrimary">#A5B4FC</color>
+    <color name="md_theme_surfaceTint">#6366F1</color>
+    <color name="md_theme_surfaceTintColor">#6366F1</color>
 
     <!-- Custom colors -->
-    <color name="btn_number">#FFFFFF</color>
-    <color name="btn_number_text">#212121</color>
-    <color name="btn_operator">#E3F2FD</color>
-    <color name="btn_operator_text">#1976D2</color>
-    <color name="btn_equals">#1976D2</color>
-    <color name="btn_equals_text">#FFFFFF</color>
-    <color name="btn_function">#FFF3E0</color>
-    <color name="btn_function_text">#F57C00</color>
-    <color name="btn_voice">#E8F5E9</color>
-    <color name="btn_voice_text">#388E3C</color>
+    <color name="panel_background">#1E293B</color>
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_muted">#94A3B8</color>
+
+    <color name="btn_number">#1F2937</color>
+    <color name="btn_number_text">#F1F5F9</color>
+    <color name="btn_operator">#242E47</color>
+    <color name="btn_operator_text">#38BDF8</color>
+    <color name="btn_equals">#6366F1</color>
+    <color name="btn_equals_text">#F8FAFC</color>
+    <color name="btn_function">#1B2540</color>
+    <color name="btn_function_text">#A5B4FC</color>
+    <color name="btn_voice">#0F766E</color>
+    <color name="btn_voice_text">#ECFEFF</color>
+    <color name="btn_voice_outline">#5EEAD4</color>
+    <color name="btn_toggle_text">#E2E8F0</color>
+    <color name="btn_toggle_outline">#475569</color>
+    <color name="btn_toggle_background">#172135</color>
+
+    <color name="bg_gradient_start">#020617</color>
+    <color name="bg_gradient_end">#0F172A</color>
 </resources>

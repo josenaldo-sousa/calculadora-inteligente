@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tamanho de texto dos botões reduzido no landscape para caber textos como "sin", "cos", "tan" -->
+    <dimen name="button_text_size">16sp</dimen>
+    <dimen name="button_text_size_small">12sp</dimen>
+    
+    <!-- Display com texto menor no landscape -->
+    <dimen name="display_text_size">32sp</dimen>
+    <dimen name="display_subtext_size">18sp</dimen>
+    <dimen name="display_padding">16dp</dimen>
+</resources>
