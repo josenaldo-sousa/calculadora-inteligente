@@ -9,4 +9,5 @@
     <dimen name="display_subtext_size">18sp</dimen>
     <dimen name="display_padding">16dp</dimen>
     <dimen name="voice_button_icon_size">24dp</dimen>
+    <dimen name="display_text_margin_end">24dp</dimen>
 </resources>

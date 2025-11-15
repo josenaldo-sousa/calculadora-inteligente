@@ -24,4 +24,5 @@
     <dimen name="display_padding">24dp</dimen>
     <dimen name="display_elevation">8dp</dimen>
     <dimen name="display_corner_radius">16dp</dimen>
+    <dimen name="display_text_margin_end">0dp</dimen>
 </resources>
