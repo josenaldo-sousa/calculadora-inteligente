@@ -55,30 +55,6 @@
                 android:ellipsize="end" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnOpenSettings"
-        style="@style/Widget.CalculadoraInteligente.Button.Outlined"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_small"
-        android:layout_marginEnd="@dimen/margin_small"
-        android:backgroundTint="@color/btn_toggle_background"
-        android:text="@string/settings_short_label"
-        android:textSize="16sp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:contentDescription="@string/action_open_settings"
-        android:textColor="@color/btn_toggle_text"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:strokeColor="@color/btn_toggle_outline"
-        app:strokeWidth="1dp" />
-
     <!-- Guideline vertical: 40% esquerda | 60% direita -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/landscapeDivider"
@@ -97,8 +73,8 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="@dimen/button_elevation"
         app:cardUseCompatPadding="true"
-        app:layout_constraintTop_toBottomOf="@id/displayCard"
-        app:layout_constraintBottom_toTopOf="@id/adView"
+    app:layout_constraintTop_toBottomOf="@id/displayCard"
+    app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/landscapeDivider">
 
@@ -259,8 +235,8 @@
         app:cardCornerRadius="16dp"
         app:cardElevation="@dimen/button_elevation"
         app:cardUseCompatPadding="true"
-        app:layout_constraintTop_toBottomOf="@id/displayCard"
-        app:layout_constraintBottom_toTopOf="@id/adView"
+    app:layout_constraintTop_toBottomOf="@id/displayCard"
+    app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/landscapeDivider"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -520,15 +496,4 @@
         android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="0dp" />
-
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
