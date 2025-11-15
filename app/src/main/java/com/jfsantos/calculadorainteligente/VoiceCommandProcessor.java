@@ -88,8 +88,12 @@ public class VoiceCommandProcessor {
         numberWords.put("mil", "1000");
         numberWords.put("milhao", "1000000");
         numberWords.put("milhão", "1000000");
+    numberWords.put("milhoes", "1000000");
+    numberWords.put("milhões", "1000000");
         numberWords.put("bilhao", "1000000000");
         numberWords.put("bilhão", "1000000000");
+    numberWords.put("bilhoes", "1000000000");
+    numberWords.put("bilhões", "1000000000");
         numberWords.put("pi", "3.1415926535");
         numberWords.put("euler", "2.7182818284");
 
@@ -462,6 +466,52 @@ public class VoiceCommandProcessor {
         return new ParseResult(ui, math, idx);
     }
 
+    private static ParseResult buildNumericLiteralResult(BigDecimal baseValue, String[] words, int nextIndex) {
+        BigDecimal value = baseValue;
+        int idx = nextIndex;
+
+        while (idx < words.length) {
+            String nextWord = words[idx];
+            if (nextWord == null) {
+                break;
+            }
+
+            String nextNormalized = normalizeText(nextWord);
+            if (nextNormalized.isEmpty()) {
+                idx++;
+                continue;
+            }
+
+            if (fillerWords.contains(nextNormalized)) {
+                if (startsWithOperator(words, idx)) {
+                    break;
+                }
+                idx++;
+                continue;
+            }
+
+            String multiplierString = numberWords.get(nextNormalized);
+            if (multiplierString != null) {
+                BigDecimal multiplier = new BigDecimal(multiplierString);
+                if (multiplier.scale() == 0 && multiplier.compareTo(BigDecimal.valueOf(1000)) >= 0) {
+                    value = value.multiply(multiplier);
+                    idx++;
+                    continue;
+                }
+            }
+
+            break;
+        }
+
+        BigDecimal normalizedValue = value.stripTrailingZeros();
+        String mathValue = normalizedValue.toPlainString();
+        if (mathValue.contains("E") || mathValue.contains("e")) {
+            mathValue = value.toPlainString();
+        }
+        String uiValue = mathValue.replace('.', ',');
+        return new ParseResult(uiValue, mathValue, idx);
+    }
+
     static ParseResult parseNumericLiteral(String[] words, int i) {
         int idx = i;
         while (idx < words.length) {
@@ -486,27 +536,20 @@ public class VoiceCommandProcessor {
                     isThousandGrouping(normalized) ||
                     isThousandGroupingWithDecimal(normalized)) {
                 String math;
-                String ui;
                 boolean hasDot = normalized.contains(".");
                 boolean hasComma = normalized.contains(",");
 
                 if (hasDot && !hasComma && isThousandGrouping(normalized)) {
                     String digitsOnly = normalized.replace(".", "");
                     math = digitsOnly;
-                    ui = digitsOnly;
                 } else if (hasDot && hasComma && isThousandGroupingWithDecimal(normalized)) {
                     String digitsOnly = normalized.replace(".", "");
                     math = digitsOnly.replace(',', '.');
-                    ui = digitsOnly;
-                    if (ui.contains(".")) {
-                        ui = ui.replace('.', ',');
-                    }
                 } else {
                     math = normalized.replace(',', '.');
-                    ui = normalized.replace('.', ',');
                 }
 
-                return new ParseResult(ui, math, idx + 1);
+                return buildNumericLiteralResult(new BigDecimal(math), words, idx + 1);
             }
             break;
         }
@@ -1053,29 +1096,22 @@ public class VoiceCommandProcessor {
 
                 if (normalized.matches("\\d+([,.]\\d+)?")) {
                     String math;
-                    String ui;
-
                     boolean hasDot = normalized.contains(".");
                     boolean hasComma = normalized.contains(",");
 
                     if (hasDot && !hasComma && VoiceCommandProcessor.isThousandGrouping(normalized)) {
                         String digitsOnly = normalized.replace(".", "");
                         math = digitsOnly;
-                        ui = digitsOnly;
                     } else if (hasDot && hasComma && VoiceCommandProcessor.isThousandGroupingWithDecimal(normalized)) {
                         String digitsOnly = normalized.replace(".", "");
                         math = digitsOnly.replace(',', '.');
-                        ui = digitsOnly;
-                        if (ui.contains(".")) {
-                            ui = ui.replace('.', ',');
-                        }
                     } else {
                         math = normalized.replace(',', '.');
-                        ui = normalized.replace('.', ',');
                     }
 
-                    ctx.addNumber(ui, math);
-                    i++;
+                    ParseResult literal = buildNumericLiteralResult(new BigDecimal(math), wordArray, i + 1);
+                    ctx.addNumber(literal.uiString, literal.mathString);
+                    i = literal.nextIndex;
                     continue;
                 }
 

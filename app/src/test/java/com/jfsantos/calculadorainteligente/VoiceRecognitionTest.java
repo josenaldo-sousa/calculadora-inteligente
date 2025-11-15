@@ -136,6 +136,19 @@ public class VoiceRecognitionTest {
     }
 
     @Test
+    public void testDigitMillionParsing() {
+        VoiceCommandProcessor.ProcessResult result = VoiceCommandProcessor.processVoiceCommandDetailed("dez dividido por 1 milhao");
+        assertEquals("10 ÷ 1000000", result.getUiExpression());
+        assertEquals("10/1000000", result.getMathExpression());
+    }
+
+    @Test
+    public void testDigitMillionEvaluation() {
+        String result = NativeVoiceRecognizer.calculateWithMXParser("dez dividido por 1 milhão");
+        assertEquals("0,00001", result);
+    }
+
+    @Test
     public void testPercentageEvaluation() {
         String result = NativeVoiceRecognizer.calculateWithMXParser("vinte por cento mais cinco");
         assertEquals("5,2", result);
