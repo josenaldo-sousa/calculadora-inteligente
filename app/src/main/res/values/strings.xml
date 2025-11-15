@@ -44,4 +44,8 @@
     <string name="error_invalid_operation">Operação inválida</string>
     <string name="advanced_toggle_show">Mostrar avançado</string>
     <string name="advanced_toggle_hide">Ocultar avançado</string>
+    <string name="action_open_settings">Configurações</string>
+    <string name="title_settings">Configurações</string>
+    <string name="settings_description">Personalize os recursos da calculadora de acordo com as suas preferências.</string>
+    <string name="settings_short_label">:</string>
 </resources>

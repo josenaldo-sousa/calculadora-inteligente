@@ -11,8 +11,8 @@
         android:id="@+id/displayCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_small"
-        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginTop="@dimen/margin_medium"
+        android:layout_marginBottom="2dp"
         app:cardCornerRadius="@dimen/display_corner_radius"
         app:cardElevation="@dimen/display_elevation"
         app:cardUseCompatPadding="true"
@@ -25,18 +25,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/display_padding">
+            android:padding="@dimen/margin_medium">
 
             <TextView
                 android:id="@+id/tvExpression"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/display_text_margin_end"
-                android:textSize="@dimen/display_subtext_size"
+                android:textSize="20sp"
                 android:textColor="@color/text_muted"
                 android:gravity="end"
                 android:alpha="0.6"
-                android:minHeight="24dp"
+                android:minHeight="20dp"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
@@ -46,15 +46,38 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/display_text_margin_end"
                 android:text="@string/display_zero"
-                android:textSize="@dimen/display_text_size"
+                android:textSize="36sp"
                 android:textColor="@color/text_primary"
                 android:textStyle="bold"
                 android:gravity="end"
-                android:minHeight="40dp"
+                android:minHeight="32dp"
                 android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenSettings"
+        style="@style/Widget.CalculadoraInteligente.Button.Outlined"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_small"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:backgroundTint="@color/btn_toggle_background"
+        android:text="@string/settings_short_label"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:contentDescription="@string/action_open_settings"
+        android:textColor="@color/btn_toggle_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:strokeColor="@color/btn_toggle_outline"
+        app:strokeWidth="1dp" />
 
     <!-- Guideline vertical: 40% esquerda | 60% direita -->
     <androidx.constraintlayout.widget.Guideline

@@ -3,12 +3,12 @@
     <!-- Text sizes -->
     <dimen name="display_text_size">48sp</dimen>
     <dimen name="display_subtext_size">24sp</dimen>
-    <dimen name="button_text_size">24sp</dimen>
-    <dimen name="operator_button_text_size">28sp</dimen>
+    <dimen name="button_text_size">20sp</dimen>
+    <dimen name="operator_button_text_size">24sp</dimen>
     <dimen name="button_min_diameter">56dp</dimen>
-    <dimen name="button_text_size_small">18sp</dimen>
+    <dimen name="button_text_size_small">16sp</dimen>
     <dimen name="button_diameter">64dp</dimen>
-    <dimen name="voice_button_icon_size">32dp</dimen>
+    <dimen name="voice_button_icon_size">28dp</dimen>
     
     <!-- Margins and padding -->
     <dimen name="margin_xsmall">4dp</dimen>

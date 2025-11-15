@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvExpression;
     private MaterialButton btnVoice;
     private MaterialButton btnToggleAdvanced;
+    private MaterialButton btnOpenSettings;
     private View advancedContainer;
     private Calculator calculator;
     private SpeechRecognizer speechRecognizer;
@@ -175,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         tvExpression = findViewById(R.id.tvExpression);
         btnVoice = findViewById(R.id.btnVoice);
         btnToggleAdvanced = findViewById(R.id.btnToggleAdvanced);
+    btnOpenSettings = findViewById(R.id.btnOpenSettings);
         advancedContainer = findViewById(R.id.advancedContainer);
         calculator = new Calculator();
 
@@ -192,6 +194,13 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 btnToggleAdvanced.setVisibility(View.GONE);
             }
+        }
+
+        if (btnOpenSettings != null) {
+            btnOpenSettings.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            });
         }
 
         updateAdvancedVisibility();

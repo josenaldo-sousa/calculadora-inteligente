@@ -1,57 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_app_gradient"
-    android:padding="@dimen/margin_large">
+    android:padding="@dimen/margin_small">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenSettings"
+        style="@style/Widget.CalculadoraInteligente.Button.Outlined"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
+        android:backgroundTint="@color/btn_toggle_background"
+        android:text="@string/settings_short_label"
+        android:textSize="16sp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:contentDescription="@string/action_open_settings"
+        android:textColor="@color/btn_toggle_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:strokeColor="@color/btn_toggle_outline"
+        app:strokeWidth="1dp" />
 
     <!-- Display Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/displayCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginBottom="@dimen/margin_small"
+        app:cardBackgroundColor="@color/panel_background"
         app:cardCornerRadius="@dimen/display_corner_radius"
         app:cardElevation="@dimen/display_elevation"
         app:cardUseCompatPadding="true"
-        app:cardBackgroundColor="@color/panel_background"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/controlsContainer"
-        app:layout_constraintHeight_percent="0.28">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.28"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="bottom"
             android:orientation="vertical"
-            android:padding="20dp"
-            android:gravity="bottom">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tvExpression"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                android:textColor="@color/text_muted"
-                android:gravity="end"
                 android:alpha="0.6"
+                android:ellipsize="end"
+                android:gravity="end"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:textColor="@color/text_muted"
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/tvResult"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/display_zero"
-                android:textSize="42sp"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
+                android:ellipsize="end"
                 android:gravity="end"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:text="@string/display_zero"
+                android:textColor="@color/text_primary"
+                android:textSize="42sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
@@ -302,7 +326,7 @@
                 app:flow_wrapMode="aligned"
                 app:flow_maxElementsWrap="4"
                 app:flow_horizontalGap="6dp"
-                app:flow_verticalGap="6dp"
+                app:flow_verticalGap="4dp"
                 app:flow_horizontalStyle="spread"
                 app:flow_verticalStyle="spread"
                 app:constraint_referenced_ids="btnVoice,btnClear,btnDelete,btnDivide,btn7,btn8,btn9,btnMultiply,btn4,btn5,btn6,btnMinus,btn1,btn2,btn3,btnPlus,btnPercent,btn0,btnDecimal,btnEquals" />
@@ -495,7 +519,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.gms.ads.AdView
