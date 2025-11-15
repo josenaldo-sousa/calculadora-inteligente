@@ -13,6 +13,8 @@
         <item name="android:paddingBottom">8dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="Widget.CalculadoraInteligente.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
@@ -28,6 +30,8 @@
         <item name="android:paddingBottom">8dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
     </style>
 
     <style name="ShapeAppearanceOverlay.CalculadoraInteligente.Circle" parent="">
@@ -40,6 +44,7 @@
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="elevation">@dimen/button_elevation</item>
     </style>
 
@@ -48,6 +53,7 @@
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
         <item name="elevation">@dimen/button_elevation</item>
     </style>
 </resources>
