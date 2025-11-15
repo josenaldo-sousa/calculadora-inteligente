@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String CONST_PI = "3.141592653589793";
     private static final String CONST_E = "2.718281828459045";
     private static final String CONST_RAD = "0.017453292519943295";
+    private static final long BUTTON_SPEECH_COOLDOWN_MS = 500L;
 
     private TextView tvResult;
     private TextView tvExpression;
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private String lastSpokenIntermediate = "";
     private final Handler speechHandler = new Handler(Looper.getMainLooper());
     private String scheduledIntermediateResult = "";
+    private long lastButtonFeedbackTimestamp = 0L;
+    private boolean voiceFeedbackEnabled = false;
     private final Runnable speakIntermediateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -168,27 +172,38 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void speakButtonFeedback(String rawToken) {
-        if (!isTextToSpeechReady || rawToken == null) {
+        if (!voiceFeedbackEnabled || !isTextToSpeechReady || rawToken == null) {
+            return;
+        }
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastButtonFeedbackTimestamp < BUTTON_SPEECH_COOLDOWN_MS) {
             return;
         }
         String message = describeToken(rawToken);
         if (message.isEmpty()) {
             return;
         }
-    textToSpeech.speak(message, TextToSpeech.QUEUE_ADD, null,
+        lastButtonFeedbackTimestamp = now;
+        textToSpeech.speak(message, TextToSpeech.QUEUE_ADD, null,
                 "btn_" + System.currentTimeMillis());
     }
 
     private void speakResult(String result) {
+        if (!voiceFeedbackEnabled) {
+            return;
+        }
         speakResultInternal(result, TextToSpeech.QUEUE_ADD, "result_");
     }
 
     private void speakPartialResult(String result) {
+        if (!voiceFeedbackEnabled) {
+            return;
+        }
         speakResultInternal(result, TextToSpeech.QUEUE_ADD, "partial_");
     }
 
     private void speakResultInternal(String result, int queueMode, String utterancePrefix) {
-        if (!isTextToSpeechReady || result == null || result.isEmpty()) {
+        if (!voiceFeedbackEnabled || !isTextToSpeechReady || result == null || result.isEmpty()) {
             return;
         }
         String normalized = result
@@ -271,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void maybeSpeakIntermediateResult(String expression, String partialResult) {
-        if (!isTextToSpeechReady) {
+        if (!voiceFeedbackEnabled || !isTextToSpeechReady) {
             scheduledIntermediateResult = "";
             speechHandler.removeCallbacks(speakIntermediateRunnable);
             return;
@@ -673,119 +688,132 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processVoiceInput(String voiceText) {
+        voiceFeedbackEnabled = true;
         String processed = VoiceCommandProcessor.processVoiceCommand(voiceText);
 
-        if (processed.isEmpty()) {
-            // Silently ignore unrecognized commands
-            return;
-        }
-
-        if (processed.equals("CLEAR")) {
-            calculator.clear();
-            updateDisplay();
-            return;
-        }
-
-        if (processed.equals("DELETE")) {
-            calculator.delete();
-            updateDisplay();
-            return;
-        }
-
-        boolean calculate = processed.endsWith("=");
-        if (calculate) {
-            processed = VoiceCommandProcessor.cleanExpression(processed);
-        }
-
-        // Process the expression with better handling of numbers with commas
-        String[] parts = processed.split("\\s+");
-        for (int idx = 0; idx < parts.length; idx++) {
-            String token = parts[idx];
-            if (token == null || token.isEmpty()) {
-                continue;
+        try {
+            if (processed.isEmpty()) {
+                // Silently ignore unrecognized commands
+                return;
             }
 
-            if (token.matches("\\d+(,\\d+)?")) {
-                for (char digit : token.toCharArray()) {
-                    if (digit == ',') {
-                        calculator.appendDecimal();
-                    } else {
-                        calculator.appendDigit(String.valueOf(digit));
+            if (processed.equals("CLEAR")) {
+                calculator.clear();
+                updateDisplay();
+                return;
+            }
+
+            if (processed.equals("DELETE")) {
+                calculator.delete();
+                updateDisplay();
+                return;
+            }
+
+            boolean calculate = processed.endsWith("=");
+            if (calculate) {
+                processed = VoiceCommandProcessor.cleanExpression(processed);
+            }
+
+            // Process the expression with better handling of numbers with commas
+            String[] parts = processed.split("\\s+");
+            for (int idx = 0; idx < parts.length; idx++) {
+                String token = parts[idx];
+                if (token == null || token.isEmpty()) {
+                    continue;
+                }
+
+                if (token.matches("\\d+(,\\d+)?")) {
+                    for (char digit : token.toCharArray()) {
+                        if (digit == ',') {
+                            calculator.appendDecimal();
+                        } else {
+                            calculator.appendDigit(String.valueOf(digit));
+                        }
+                    }
+                    continue;
+                }
+
+                switch (token) {
+                    case "(":
+                        calculator.appendParenthesis("(");
+                        continue;
+                    case ")":
+                        calculator.appendParenthesis(")");
+                        continue;
+                    case "+":
+                    case "−":
+                    case "×":
+                    case "÷":
+                    case "^":
+                        calculator.appendOperator(token);
+                        continue;
+                    case "%":
+                        String percentValue = calculator.calculatePercent();
+                        calculator.setCurrentNumber(percentValue);
+                        continue;
+                    default:
+                        break;
+                }
+
+                if ("π".equals(token) || "pi".equalsIgnoreCase(token)) {
+                    calculator.appendConstant(CONST_PI);
+                    continue;
+                }
+
+                if ("e".equalsIgnoreCase(token) || "euler".equalsIgnoreCase(token)) {
+                    calculator.appendConstant(CONST_E);
+                    continue;
+                }
+
+                if ("RAD".equalsIgnoreCase(token) || "radiano".equalsIgnoreCase(token)) {
+                    calculator.appendConstant(CONST_RAD);
+                    continue;
+                }
+
+                if (token.equals("√") || token.equals("sin") || token.equals("cos") || token.equals("tan") || token.equals("log") || token.equals("ln")) {
+                    String argument = "";
+                    if (idx + 1 < parts.length) {
+                        argument = parts[idx + 1];
+                        idx++;
+                    }
+                    if (argument != null && !argument.isEmpty()) {
+                        String functionName = token.equals("√") ? "√" : token;
+                        calculator.appendFunction(functionName, argument);
+                    }
+                    continue;
+                }
+
+                if (token.equals("!")) {
+                    calculator.appendFactorial();
+                }
+            }
+
+            if (calculate) {
+                try {
+                    String result = calculator.calculate();
+                    tvExpression.setText(calculator.getFullExpression() + " =");
+                    tvResult.setText(formatNumber(result));
+                    calculator.clear();
+                    calculator.setCurrentNumber(result);
+                    speakResult(result);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Erro ao calcular: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    speakButtonFeedback(e.getMessage());
+                }
+            } else {
+                updateDisplay();
+                if (calculator.hasCompleteExpression()) {
+                    String partialResult = calculator.evaluatePartial();
+                    if (partialResult != null && !partialResult.isEmpty()
+                            && !"Erro".equalsIgnoreCase(partialResult)) {
+                        speakResult(partialResult);
                     }
                 }
-                continue;
             }
-
-            switch (token) {
-                case "(":
-                    calculator.appendParenthesis("(");
-                    continue;
-                case ")":
-                    calculator.appendParenthesis(")");
-                    continue;
-                case "+":
-                case "−":
-                case "×":
-                case "÷":
-                case "^":
-                    calculator.appendOperator(token);
-                    continue;
-                case "%":
-                    String percentValue = calculator.calculatePercent();
-                    calculator.setCurrentNumber(percentValue);
-                    continue;
-                default:
-                    break;
-            }
-
-            if ("π".equals(token) || "pi".equalsIgnoreCase(token)) {
-                calculator.appendConstant(CONST_PI);
-                continue;
-            }
-
-            if ("e".equalsIgnoreCase(token) || "euler".equalsIgnoreCase(token)) {
-                calculator.appendConstant(CONST_E);
-                continue;
-            }
-
-            if ("RAD".equalsIgnoreCase(token) || "radiano".equalsIgnoreCase(token)) {
-                calculator.appendConstant(CONST_RAD);
-                continue;
-            }
-
-            if (token.equals("√") || token.equals("sin") || token.equals("cos") || token.equals("tan") || token.equals("log") || token.equals("ln")) {
-                String argument = "";
-                if (idx + 1 < parts.length) {
-                    argument = parts[idx + 1];
-                    idx++;
-                }
-                if (argument != null && !argument.isEmpty()) {
-                    String functionName = token.equals("√") ? "√" : token;
-                    calculator.appendFunction(functionName, argument);
-                }
-                continue;
-            }
-
-            if (token.equals("!")) {
-                calculator.appendFactorial();
-            }
-        }
-
-        if (calculate) {
-            try {
-                String result = calculator.calculate();
-                tvExpression.setText(calculator.getFullExpression() + " =");
-                tvResult.setText(formatNumber(result));
-                calculator.clear();
-                calculator.setCurrentNumber(result);
-                speakButtonFeedback("=");
-                speakResult(result);
-            } catch (Exception e) {
-                Toast.makeText(this, "Erro ao calcular: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                speakButtonFeedback(e.getMessage());
-            }
-        } else {
-            updateDisplay();
+        } finally {
+            voiceFeedbackEnabled = false;
+            scheduledIntermediateResult = "";
+            speechHandler.removeCallbacks(speakIntermediateRunnable);
         }
     }
 
