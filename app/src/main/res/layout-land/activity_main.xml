@@ -275,7 +275,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_clear"
                 android:backgroundTint="@color/btn_function"
-                android:textColor="@color/btn_function_text" />
+                android:textColor="@color/md_theme_error"
+                android:textAllCaps="true" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
@@ -295,7 +296,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_divide"
                 android:backgroundTint="@color/btn_operator"
-                android:textColor="@color/btn_operator_text" />
+                android:textColor="@color/btn_operator_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn7"
@@ -335,7 +337,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_multiply"
                 android:backgroundTint="@color/btn_operator"
-                android:textColor="@color/btn_operator_text" />
+                android:textColor="@color/btn_operator_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn4"
@@ -375,7 +378,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_minus"
                 android:backgroundTint="@color/btn_operator"
-                android:textColor="@color/btn_operator_text" />
+                android:textColor="@color/btn_operator_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn1"
@@ -415,7 +419,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_plus"
                 android:backgroundTint="@color/btn_operator"
-                android:textColor="@color/btn_operator_text" />
+                android:textColor="@color/btn_operator_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPercent"
@@ -425,7 +430,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_percent"
                 android:backgroundTint="@color/btn_function"
-                android:textColor="@color/btn_function_text" />
+                android:textColor="@color/btn_function_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn0"
@@ -455,7 +461,8 @@
                 app:layout_constraintDimensionRatio="5:2"
                 android:text="@string/btn_equals"
                 android:backgroundTint="@color/btn_equals"
-                android:textColor="@color/btn_equals_text" />
+                android:textColor="@color/btn_equals_text"
+                android:textSize="@dimen/operator_button_text_size" />
 
             <!-- Flow para organizar teclado numérico em grid 4 colunas -->
             <androidx.constraintlayout.helper.widget.Flow
