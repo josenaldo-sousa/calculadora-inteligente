@@ -3,9 +3,9 @@
     <!-- Text sizes -->
     <dimen name="display_text_size">48sp</dimen>
     <dimen name="display_subtext_size">24sp</dimen>
-    <dimen name="button_text_size">20sp</dimen>
+    <dimen name="button_text_size">24sp</dimen>
     <dimen name="button_min_diameter">56dp</dimen>
-    <dimen name="button_text_size_small">16sp</dimen>
+    <dimen name="button_text_size_small">18sp</dimen>
     <dimen name="button_diameter">64dp</dimen>
     
     <!-- Margins and padding -->

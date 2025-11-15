@@ -10,39 +10,43 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/displayCard"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/margin_small"
-        android:layout_marginBottom="@dimen/margin_medium"
+        android:layout_marginBottom="@dimen/margin_small"
         app:cardCornerRadius="@dimen/display_corner_radius"
         app:cardElevation="@dimen/display_elevation"
         app:cardUseCompatPadding="true"
         app:cardBackgroundColor="@color/panel_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/controlsContainer"
+        app:layout_constraintHeight_percent="0.28">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="@dimen/display_padding">
+            android:padding="20dp"
+            android:gravity="bottom">
 
             <TextView
                 android:id="@+id/tvExpression"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/display_subtext_size"
+                android:textSize="20sp"
                 android:textColor="@color/text_muted"
                 android:gravity="end"
                 android:alpha="0.6"
-                android:minHeight="32dp" />
+                android:maxLines="2"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvResult"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/display_zero"
-                android:textSize="@dimen/display_text_size"
+                android:textSize="42sp"
                 android:textColor="@color/text_primary"
                 android:textStyle="bold"
                 android:gravity="end"
@@ -56,7 +60,6 @@
         android:id="@+id/controlsContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/margin_small"
         app:layout_constraintTop_toBottomOf="@id/displayCard"
         app:layout_constraintBottom_toTopOf="@id/adView"
         app:layout_constraintStart_toStartOf="parent"
@@ -284,8 +287,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:flow_wrapMode="aligned"
                 app:flow_maxElementsWrap="4"
-                app:flow_horizontalGap="@dimen/margin_small"
-                app:flow_verticalGap="@dimen/margin_small"
+                app:flow_horizontalGap="6dp"
+                app:flow_verticalGap="6dp"
                 app:flow_horizontalStyle="spread"
                 app:flow_verticalStyle="spread"
                 app:constraint_referenced_ids="btnVoice,btnClear,btnDelete,btnDivide,btn7,btn8,btn9,btnMultiply,btn4,btn5,btn6,btnMinus,btn1,btn2,btn3,btnPlus,btnPercent,btn0,btnDecimal,btnEquals" />
