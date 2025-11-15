@@ -47,6 +47,9 @@
     <color name="btn_voice">#0F766E</color>
     <color name="btn_voice_text">#ECFEFF</color>
     <color name="btn_voice_outline">#5EEAD4</color>
+    <color name="btn_voice_active">#14B8A6</color>
+    <color name="btn_voice_active_text">#022C22</color>
+    <color name="btn_voice_active_outline">#99F6E4</color>
     <color name="btn_toggle_text">#E2E8F0</color>
     <color name="btn_toggle_outline">#475569</color>
     <color name="btn_toggle_background">#172135</color>

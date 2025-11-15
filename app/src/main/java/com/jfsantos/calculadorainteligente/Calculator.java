@@ -104,7 +104,45 @@ public class Calculator {
     public void delete() {
         if (currentNumber.length() > 0 && !startNewNumber) {
             currentNumber.deleteCharAt(currentNumber.length() - 1);
+            return;
         }
+
+        if (expression == null || expression.isEmpty()) {
+            return;
+        }
+
+        String trimmed = expression.trim();
+        if (trimmed.isEmpty()) {
+            expression = "";
+            return;
+        }
+
+        if (trimmed.endsWith("+") || trimmed.endsWith("−") || trimmed.endsWith("-")
+                || trimmed.endsWith("×") || trimmed.endsWith("÷") || trimmed.endsWith("%")
+                || trimmed.endsWith("^")) {
+            int lastSpace = trimmed.lastIndexOf(' ');
+            if (lastSpace >= 0) {
+                expression = trimmed.substring(0, lastSpace).trim();
+            } else {
+                expression = "";
+            }
+            startNewNumber = false;
+            return;
+        }
+
+        int lastSpace = trimmed.lastIndexOf(' ');
+        if (lastSpace >= 0) {
+            String token = trimmed.substring(lastSpace + 1);
+            expression = trimmed.substring(0, lastSpace).trim();
+            if (!expression.isEmpty()) {
+                expression = expression + " ";
+            }
+            currentNumber = new StringBuilder(token);
+        } else {
+            currentNumber = new StringBuilder(trimmed);
+            expression = "";
+        }
+        startNewNumber = false;
     }
 
     public void setExpression(String expr) {

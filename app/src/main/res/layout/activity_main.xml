@@ -83,9 +83,16 @@
                 app:layout_constraintDimensionRatio="1:1"
                 app:strokeColor="@color/btn_voice_outline"
                 app:strokeWidth="1dp"
-                android:text="@string/btn_voice"
+                android:text=""
                 android:backgroundTint="@color/btn_voice"
-                android:textColor="@color/btn_voice_text" />
+                android:textColor="@color/btn_voice_text"
+                android:contentDescription="@string/btn_voice"
+                android:gravity="center"
+                app:icon="@drawable/ic_mic_idle"
+                app:iconTint="@color/btn_voice_text"
+                app:iconPadding="0dp"
+                app:iconSize="@dimen/voice_button_icon_size"
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClear"
@@ -95,7 +102,8 @@
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_clear"
                 android:backgroundTint="@color/btn_function"
-                android:textColor="@color/btn_function_text" />
+                android:textColor="@color/md_theme_error"
+                android:textAllCaps="true" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
@@ -114,6 +122,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_divide"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_operator"
                 android:textColor="@color/btn_operator_text" />
 
@@ -154,6 +163,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_multiply"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_operator"
                 android:textColor="@color/btn_operator_text" />
 
@@ -194,6 +204,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_minus"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_operator"
                 android:textColor="@color/btn_operator_text" />
 
@@ -234,6 +245,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_plus"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_operator"
                 android:textColor="@color/btn_operator_text" />
 
@@ -244,6 +256,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_percent"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_function"
                 android:textColor="@color/btn_function_text" />
 
@@ -274,6 +287,7 @@
                 android:layout_height="0dp"
                 app:layout_constraintDimensionRatio="1:1"
                 android:text="@string/btn_equals"
+                android:textSize="@dimen/operator_button_text_size"
                 android:backgroundTint="@color/btn_equals"
                 android:textColor="@color/btn_equals_text" />
 

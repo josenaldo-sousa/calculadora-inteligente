@@ -254,9 +254,16 @@
                 app:layout_constraintDimensionRatio="5:2"
                 app:strokeColor="@color/btn_voice_outline"
                 app:strokeWidth="1dp"
-                android:text="@string/btn_voice"
+                android:text=""
                 android:backgroundTint="@color/btn_voice"
-                android:textColor="@color/btn_voice_text" />
+                android:textColor="@color/btn_voice_text"
+                android:contentDescription="@string/btn_voice"
+                android:gravity="center"
+                app:icon="@drawable/ic_mic_idle"
+                app:iconTint="@color/btn_voice_text"
+                app:iconPadding="0dp"
+                app:iconSize="@dimen/voice_button_icon_size"
+                app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClear"

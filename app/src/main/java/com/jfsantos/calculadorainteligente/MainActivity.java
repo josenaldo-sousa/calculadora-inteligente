@@ -3,6 +3,7 @@ package com.jfsantos.calculadorainteligente;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -77,6 +79,39 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private void setVoiceListeningState(boolean listening) {
+        isListening = listening;
+        if (btnVoice == null) {
+            return;
+        }
+        btnVoice.setEnabled(!listening);
+        updateVoiceButtonVisualState();
+    }
+
+    private void updateVoiceButtonVisualState() {
+        if (btnVoice == null) {
+            return;
+        }
+        @ColorInt int background = ContextCompat.getColor(this,
+                isListening ? R.color.btn_voice_active : R.color.btn_voice);
+        @ColorInt int textColor = ContextCompat.getColor(this,
+                isListening ? R.color.btn_voice_active_text : R.color.btn_voice_text);
+        @ColorInt int strokeColor = ContextCompat.getColor(this,
+                isListening ? R.color.btn_voice_active_outline : R.color.btn_voice_outline);
+
+        btnVoice.setBackgroundTintList(ColorStateList.valueOf(background));
+        btnVoice.setStrokeColor(ColorStateList.valueOf(strokeColor));
+        btnVoice.setTextColor(textColor);
+    btnVoice.setText("");
+    btnVoice.setContentDescription(isListening
+        ? getString(R.string.btn_voice_listening)
+        : getString(R.string.btn_voice));
+    btnVoice.setIconSize(getResources().getDimensionPixelSize(R.dimen.voice_button_icon_size));
+    btnVoice.setIconPadding(0);
+        btnVoice.setIconResource(isListening ? R.drawable.ic_mic_active : R.drawable.ic_mic_idle);
+        btnVoice.setIconTint(ColorStateList.valueOf(textColor));
+    }
+
     private void releaseSpeechRecognizer() {
         if (speechRecognizer == null) {
             return;
@@ -91,12 +126,7 @@ public class MainActivity extends AppCompatActivity {
         speechRecognizer.cancel();
         speechRecognizer.destroy();
         speechRecognizer = null;
-        isListening = false;
-
-        if (btnVoice != null) {
-            btnVoice.setEnabled(true);
-        }
-
+        setVoiceListeningState(false);
     }
 
     private void updateAdvancedVisibility() {
@@ -147,6 +177,8 @@ public class MainActivity extends AppCompatActivity {
         btnToggleAdvanced = findViewById(R.id.btnToggleAdvanced);
         advancedContainer = findViewById(R.id.advancedContainer);
         calculator = new Calculator();
+
+        setVoiceListeningState(false);
 
         showAdvancedControls = getResources().getBoolean(R.bool.show_advanced_controls);
         advancedExpanded = showAdvancedControls;
@@ -340,6 +372,7 @@ public class MainActivity extends AppCompatActivity {
     private void initializeSpeechRecognizer() {
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             speechRecognizer = null;
+            setVoiceListeningState(false);
             return;
         }
 
@@ -349,8 +382,7 @@ public class MainActivity extends AppCompatActivity {
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
                 @Override
                 public void onReadyForSpeech(Bundle params) {
-                    isListening = true;
-                    if (btnVoice != null) btnVoice.setEnabled(false);
+                    setVoiceListeningState(true);
                 }
 
                 @Override
@@ -367,13 +399,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onEndOfSpeech() {
-                    isListening = false;
-                    if (btnVoice != null) btnVoice.setEnabled(true);
+                    setVoiceListeningState(false);
                 }
 
                 @Override
                 public void onError(int error) {
-                    isListening = false;
+                    setVoiceListeningState(false);
                     String message;
                     switch (error) {
                         case SpeechRecognizer.ERROR_AUDIO:
@@ -405,7 +436,6 @@ public class MainActivity extends AppCompatActivity {
                             break;
                     }
                     Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-                    if (btnVoice != null) btnVoice.setEnabled(true);
                     if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                         new Handler(Looper.getMainLooper()).postDelayed(() -> startListening(), 400);
                     }
@@ -413,8 +443,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResults(Bundle results) {
-                    isListening = false;
-                    if (btnVoice != null) btnVoice.setEnabled(true);
+                    setVoiceListeningState(false);
                     ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                     if (matches != null && !matches.isEmpty()) {
                         String best = null;
@@ -707,6 +736,7 @@ public class MainActivity extends AppCompatActivity {
     private void startListening() {
         if (speechRecognizer == null) {
             Toast.makeText(this, getString(R.string.voice_not_available), Toast.LENGTH_SHORT).show();
+            setVoiceListeningState(false);
             return;
         }
 
@@ -723,6 +753,7 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
 
             Toast.makeText(this, getString(R.string.voice_prompt), Toast.LENGTH_SHORT).show();
+            setVoiceListeningState(true);
             speechRecognizer.startListening(intent);
         }
     }

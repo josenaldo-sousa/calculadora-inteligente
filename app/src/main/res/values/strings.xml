@@ -17,11 +17,12 @@
     <string name="btn_multiply">×</string>
     <string name="btn_divide">÷</string>
     <string name="btn_equals">=</string>
-    <string name="btn_clear">c</string>
+    <string name="btn_clear">C</string>
     <string name="btn_delete">del</string>
     <string name="btn_decimal">.</string>
     <string name="btn_percent">%</string>
     <string name="btn_voice">voz</string>
+    <string name="btn_voice_listening">ouvindo...</string>
     <string name="btn_sqrt">√</string>
     <string name="btn_power">^</string>
     <string name="btn_sin">sin</string>
