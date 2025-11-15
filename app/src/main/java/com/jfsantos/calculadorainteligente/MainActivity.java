@@ -100,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateAdvancedVisibility() {
+        // No landscape, sempre mostra os botões avançados
+        boolean isLandscape = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        
         if (!showAdvancedControls) {
             if (advancedContainer != null) {
                 advancedContainer.setVisibility(View.GONE);
@@ -111,14 +114,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (advancedContainer != null) {
-            advancedContainer.setVisibility(advancedExpanded ? View.VISIBLE : View.GONE);
+            // No landscape, sempre visível; no portrait, depende do toggle
+            advancedContainer.setVisibility((isLandscape || advancedExpanded) ? View.VISIBLE : View.GONE);
         }
 
         if (btnToggleAdvanced != null) {
-            btnToggleAdvanced.setVisibility(View.VISIBLE);
-            btnToggleAdvanced.setText(advancedExpanded
-                    ? getString(R.string.advanced_toggle_hide)
-                    : getString(R.string.advanced_toggle_show));
+            // Toggle só aparece no portrait
+            btnToggleAdvanced.setVisibility(isLandscape ? View.GONE : View.VISIBLE);
+            if (!isLandscape) {
+                btnToggleAdvanced.setText(advancedExpanded
+                        ? getString(R.string.advanced_toggle_hide)
+                        : getString(R.string.advanced_toggle_show));
+            }
         }
     }
 

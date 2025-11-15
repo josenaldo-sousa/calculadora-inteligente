@@ -54,13 +54,13 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Guideline vertical: 35% esquerda | 65% direita -->
+    <!-- Guideline vertical: 40% esquerda | 60% direita -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/landscapeDivider"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.40" />
 
     <!-- Card de botões avançados (esquerda 35%) -->
     <androidx.cardview.widget.CardView
@@ -81,7 +81,7 @@
             android:id="@+id/advancedContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="4dp">
+            android:padding="8dp">
 
             <!-- Botões avançados -->
             <com.google.android.material.button.MaterialButton
@@ -485,7 +485,7 @@
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
