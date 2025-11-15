@@ -7,36 +7,12 @@
     android:background="@drawable/bg_app_gradient"
     android:padding="@dimen/margin_small">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnOpenSettings"
-        style="@style/Widget.CalculadoraInteligente.Button.Outlined"
-    android:layout_width="wrap_content"
-    android:layout_height="32dp"
-    android:layout_marginEnd="@dimen/margin_medium"
-    android:layout_marginTop="@dimen/margin_medium"
-        android:layout_marginBottom="@dimen/margin_medium"
-        android:backgroundTint="@color/btn_toggle_background"
-        android:text="@string/settings_short_label"
-        android:textSize="16sp"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
-        android:contentDescription="@string/action_open_settings"
-        android:textColor="@color/btn_toggle_text"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:strokeColor="@color/btn_toggle_outline"
-        app:strokeWidth="1dp" />
-
     <!-- Display Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/displayCard"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="@dimen/margin_medium"
         android:layout_marginBottom="@dimen/margin_small"
         app:cardBackgroundColor="@color/panel_background"
         app:cardCornerRadius="@dimen/display_corner_radius"
@@ -46,14 +22,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.28"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnOpenSettings">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="bottom"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_height="match_parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenSettings"
+                style="@style/Widget.CalculadoraInteligente.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginTop="@dimen/margin_xsmall"
+                android:layout_marginEnd="@dimen/margin_xsmall"
+                android:backgroundTint="@color/btn_toggle_background"
+                android:text="@string/settings_short_label"
+                android:textSize="16sp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:contentDescription="@string/action_open_settings"
+                android:textColor="@color/btn_toggle_text"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:strokeColor="@color/btn_toggle_outline"
+                app:strokeWidth="1dp" />
 
             <TextView
                 android:id="@+id/tvExpression"
@@ -64,7 +60,15 @@
                 android:gravity="end"
                 android:maxLines="2"
                 android:textColor="@color/text_muted"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                app:layout_constraintTop_toBottomOf="@id/btnOpenSettings"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/tvResult"
+                android:layout_marginTop="@dimen/margin_small"
+                android:layout_marginBottom="@dimen/margin_xsmall"
+                android:layout_marginStart="@dimen/display_padding"
+                android:layout_marginEnd="@dimen/display_padding" />
 
             <TextView
                 android:id="@+id/tvResult"
@@ -76,8 +80,14 @@
                 android:text="@string/display_zero"
                 android:textColor="@color/text_primary"
                 android:textSize="42sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="@dimen/display_padding"
+                android:layout_marginEnd="@dimen/display_padding"
+                android:layout_marginBottom="@dimen/display_padding" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
     <!-- Controls adjusted with constraints so buttons scale proportionally -->
