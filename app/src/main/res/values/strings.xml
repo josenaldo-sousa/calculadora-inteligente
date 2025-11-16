@@ -48,4 +48,6 @@
     <string name="title_settings">Configurações</string>
     <string name="settings_description">Personalize os recursos da calculadora de acordo com as suas preferências.</string>
     <string name="settings_short_label">:</string>
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="admob_banner_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 </resources>

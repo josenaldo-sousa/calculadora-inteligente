@@ -15,6 +15,7 @@
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
     <dimen name="margin_large">24dp</dimen>
+    <dimen name="margin_xlarge">32dp</dimen>
     
     <!-- Button dimensions -->
     <dimen name="button_elevation">2dp</dimen>

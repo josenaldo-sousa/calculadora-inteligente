@@ -4,14 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_app_gradient"
-    android:padding="@dimen/margin_large">
+    android:paddingStart="@dimen/margin_large"
+    android:paddingEnd="@dimen/margin_xlarge"
+    android:paddingTop="@dimen/margin_small"
+    android:paddingBottom="@dimen/margin_large">
 
     <!-- Display Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/displayCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_medium"
+    android:layout_marginTop="@dimen/margin_small"
         android:layout_marginBottom="2dp"
         app:cardCornerRadius="@dimen/display_corner_radius"
         app:cardElevation="@dimen/display_elevation"

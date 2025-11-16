@@ -10,10 +10,11 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
-import android.widget.Toast;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -25,8 +26,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.material.button.MaterialButton;
-
-import android.widget.TextView;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -52,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton btnVoice;
     private MaterialButton btnToggleAdvanced;
     private MaterialButton btnOpenSettings;
+    private AdView adView;
     private View advancedContainer;
     private Calculator calculator;
     private SpeechRecognizer speechRecognizer;
     private boolean isListening = false;
     private boolean advancedExpanded = false;
-    private AdView mAdView;
     private TextToSpeech textToSpeech;
     private boolean isTextToSpeechReady = false;
     private String lastSpokenIntermediate = "";
@@ -165,21 +164,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAdView = findViewById(R.id.adView);
-        if (mAdView != null) {
-            MobileAds.initialize(this, initializationStatus -> {});
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.loadAd(adRequest);
-        }
-
         // Initialize views
         tvResult = findViewById(R.id.tvResult);
         tvExpression = findViewById(R.id.tvExpression);
         btnVoice = findViewById(R.id.btnVoice);
         btnToggleAdvanced = findViewById(R.id.btnToggleAdvanced);
-    btnOpenSettings = findViewById(R.id.btnOpenSettings);
+        btnOpenSettings = findViewById(R.id.btnOpenSettings);
         advancedContainer = findViewById(R.id.advancedContainer);
         calculator = new Calculator();
+        adView = findViewById(R.id.adView);
+
+        MobileAds.initialize(this, initializationStatus -> { });
+        if (adView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+        }
 
         setVoiceListeningState(false);
 
@@ -224,11 +223,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeTextToSpeech() {
         textToSpeech = new TextToSpeech(this, status -> {
+            TextToSpeech current = textToSpeech;
+            if (current == null) {
+                // Activity might have been destroyed/recreated before callback returns.
+                isTextToSpeechReady = false;
+                return;
+            }
+
             if (status == TextToSpeech.SUCCESS) {
-                int languageStatus = textToSpeech.setLanguage(new Locale("pt", "BR"));
+                int languageStatus = current.setLanguage(new Locale("pt", "BR"));
                 isTextToSpeechReady = languageStatus != TextToSpeech.LANG_MISSING_DATA &&
                         languageStatus != TextToSpeech.LANG_NOT_SUPPORTED;
-                textToSpeech.setSpeechRate(1.0f);
+                current.setSpeechRate(1.0f);
                 if (!isTextToSpeechReady) {
                     Toast.makeText(this, R.string.voice_feedback_unavailable, Toast.LENGTH_SHORT).show();
                 }
@@ -991,7 +997,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (adView != null) {
+            adView.resume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (adView != null) {
+            adView.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
+        if (adView != null) {
+            adView.destroy();
+            adView = null;
+        }
         super.onDestroy();
         releaseSpeechRecognizer();
         speechHandler.removeCallbacksAndMessages(null);
